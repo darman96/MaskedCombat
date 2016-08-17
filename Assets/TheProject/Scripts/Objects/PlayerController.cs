@@ -14,27 +14,21 @@ using System.Collections.Generic;
 public class PlayerController : MonoBehaviour
 {
     #region Variables
-    [SerializeField]
     [Range (1, 4)]
     public int PlayerNumber = 1;
-
-    [SerializeField]
-    public float AttackDelayOff { get; set; }
-    [SerializeField]
-    public float AttackDelayDef { get; set; }
-    [SerializeField]
-    public float AttackDelayHit { get; set; }
-    [SerializeField]
-    public float RunSpeed { get; set; }
-    [SerializeField]
-    public float JumpHeight { get; set; }
-    [SerializeField]
-    public float StunnedTime { get; set; }
-    [SerializeField]
-    public float InvulnerableTime { get; set; }
+    public float AttackDelayOff = 2f;
+    public float AttackDelayDef = 2f;
+    public float AttackDelayHit = 0.5f;
+    public float JumpDelay = 1.0f;
+    public float RunSpeed = 6f;
+    public float TurnSpeed = 5f;
+    public float JumpHeight = 5f;
+    public float StunnedTime = 1.0f;
+    public float InvulnerableTime = 2.0f;
+    public float deadzone = 0.5f;
 
     [HideInInspector]
-    public Dictionary<MaskType, Mask> OwnedMasks;
+    public Dictionary<MaskType, Mask> OwnedMasks = new Dictionary<MaskType, Mask>();
     [HideInInspector]
     public MaskType ActiveMask_Offensive;
     [HideInInspector]
@@ -45,13 +39,15 @@ public class PlayerController : MonoBehaviour
     private float LastHit;
     private float LastJump;
     private float DeadTime;
-
-    private bool _IsDead;
-    public bool IsDead
-    {
-        get { return _IsDead; }
-        private set { _IsDead = value; }
-    }
+    private int Joystick;
+    private Vector2 leftstick;
+    private Vector2 rightstick;
+    private Animator pAnimator;
+    private Rigidbody pRigidbody;
+    private Vector3 ResultingSpeed;
+    private float ResultingTorque;
+    private bool IsInvulnerable;
+    private bool IsStunned;
 
     private int _Score;
     public int Score
@@ -63,7 +59,6 @@ public class PlayerController : MonoBehaviour
 
     public virtual void ResetStartGame()
     {
-        IsDead = false;
         OwnedMasks.Clear();
         transform.rotation = Quaternion.identity;
 
@@ -98,28 +93,142 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        pAnimator = GetComponent<Animator>();
+        pRigidbody = GetComponent<Rigidbody>();
+
         ResetAll();
+
+        switch (PlayerNumber)
+        {
+            case 1:
+                Joystick = GameManager.instance.InputPlayer1;
+                break;
+            case 2:
+                Joystick = GameManager.instance.InputPlayer2;
+                break;
+            case 3:
+                Joystick = GameManager.instance.InputPlayer3;
+                break;
+            case 4:
+                Joystick = GameManager.instance.InputPlayer4;
+                break;
+        }
     }
 
     private void Update()
     {
         if (Time.time - DeadTime < StunnedTime)
         {
+            IsStunned = true;
+            IsInvulnerable = true;
+
             return;
         }
 
-        if (Input.GetMouseButtonDown(0) && Time.time - LastHit > AttackDelayHit)
-            MeleeAttack();
+        IsStunned = false;
+
+        if (Time.time - DeadTime < InvulnerableTime)
+        {
+            IsInvulnerable = true;
+
+            return;
+        }
+
+        IsInvulnerable = false;
+
+        if (Joystick == -1)
+            return;
+
+        float deltaJump = Time.time - LastJump;
+        float deltaAttack = Mathf.Min (Time.time - LastOffensive, Time.time - LastHit);
+
+        if (Joystick == 0)
+        {
+            if (Input.GetButtonDown("KeyboardJump") && deltaJump > JumpDelay)
+            {
+                Jump();
+            }
+
+            if (Input.GetButtonDown("KeyboardHit") && deltaAttack > AttackDelayHit && deltaJump > JumpDelay)
+            {
+                MeleeAttack();
+            }
+
+            if (Input.GetButtonDown("KeyboardOff") && deltaAttack > AttackDelayOff && deltaJump > JumpDelay)
+            {
+                ShootOffensive();
+            }
+
+            if (Input.GetButtonDown("KeyboardDef") && Time.time - LastDefensive > AttackDelayDef)
+            {
+                ActivateDefensive();
+            }
+
+            // Specifies the amount of movement
+            leftstick = new Vector2(Input.GetAxis("KeyboardAxisX"), Input.GetAxis("KeyboardAxisY"));
+            rightstick = new Vector2(Input.GetAxis("MouseCamAxisX"), Input.GetAxis("MouseCamAxisY"));
+        }
+        else
+        {
+            if (Input.GetButtonDown("ButtonA_P" + Joystick) && deltaJump > JumpDelay)
+            {
+                Jump();
+            }
+
+            if (Input.GetButtonDown("KeyboardHit") && deltaAttack > AttackDelayHit && deltaJump > JumpDelay)
+            {
+                MeleeAttack();
+            }
+
+            if (Input.GetButtonDown("ButtonX_P" + Joystick) && deltaAttack > AttackDelayOff && deltaJump > JumpDelay)
+            {
+                ShootOffensive();
+            }
+
+            if (Input.GetButtonDown("ButtonY_P" + Joystick) && Time.time - LastDefensive > AttackDelayDef)
+            {
+                ActivateDefensive();
+            }
+
+            // Specifies the amount of movement
+            leftstick = new Vector2(Mathf.Clamp(Input.GetAxis("AxisX_P" + Joystick) + Input.GetAxis("KeyboardAxisX"), -1.0f, 1.0f), Mathf.Clamp(Input.GetAxis("AxisY_P" + Joystick) + Input.GetAxis("KeyboardAxisY"), -1.0f, 1.0f));
+            if (leftstick.magnitude < deadzone)
+                leftstick = Vector2.zero;
+            //else
+            //    leftstick = leftstick.normalized * ((leftstick.magnitude - deadzone) / (1 - deadzone));
+
+            rightstick = new Vector2(Mathf.Clamp(Input.GetAxis("CamAxisX_P" + Joystick) + Input.GetAxis("MouseCamAxisX"), -1.0f, 1.0f), Mathf.Clamp(Input.GetAxis("CamAxisY_P" + Joystick) + Input.GetAxis("MouseCamAxisY"), -1.0f, 1.0f));
+            if (rightstick.magnitude < deadzone)
+                rightstick = Vector2.zero;
+            //else
+            //    rightstick = rightstick.normalized * ((rightstick.magnitude - deadzone) / (1 - deadzone));
+        }
+
     }
 
     private void FixedUpdate()
     {
-        if (Time.time - DeadTime < StunnedTime)
+        if (IsStunned)
         {
             return;
         }
 
+        Move();
+        UpdateAnimator();
         //Debug.Log(AxisX.ToString("0.0") + " : " + AxisY.ToString("0.0") + (Jumping ? "JUMP " : " ") + (Crouching ? "CROUCH " : " ") + (IsGrounded ? "GROUNDED" : ""));
+    }
+
+    void UpdateAnimator()
+    {
+        return;
+
+        pAnimator.SetFloat("Forward", ResultingSpeed.magnitude, 0.01f, Time.deltaTime);
+        pAnimator.SetFloat("Turn", ResultingTorque / TurnSpeed, 0.01f, Time.deltaTime);
+        pAnimator.SetBool("IsStunned", IsStunned);
+        pAnimator.SetBool("IsInvulnerable", IsInvulnerable);
+        pAnimator.SetTrigger("MeleeAttack");
+        pAnimator.SetTrigger("OffAttack");
+        pAnimator.SetTrigger("DefAttack");
     }
 
     void OnTriggerStay(Collider other)
@@ -128,7 +237,7 @@ public class PlayerController : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
-        if (Time.time - DeadTime < InvulnerableTime)
+        if (IsInvulnerable)
         {
             return;
         }
@@ -144,8 +253,33 @@ public class PlayerController : MonoBehaviour
         SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.death);
     }
 
+    void Move()
+    {
+        ResultingSpeed = new Vector3 (leftstick.x, 0, leftstick.y).normalized * RunSpeed;
+
+        //Debug.Log("Stick: " + leftstick);
+        //Debug.Log("Speed: " + ResultingSpeed);
+
+        //if (Movement == MovementType.Walking && ResultingSpeed > 0.5f && Grounded)
+        //    SoundManager.instance.Loop("P1Walk", transform.position, transform.rotation, SoundType.footstep);
+        //else
+        //    SoundManager.instance.Stop("P1Walk");
+
+        pRigidbody.velocity = ResultingSpeed;
+        transform.rotation = Quaternion.LookRotation(ResultingSpeed, Vector3.up);
+
+        //Debug.Log("Curr: " + RotY.ToString("0.0") + " Tgt: " + TgtRot.ToString("0.0") + " Delta: " + delta.ToString("0.0") + "Req: " + ReqTorque.ToString("0.0"));
+    }
+
+    void Jump()
+    {
+        LastJump = Time.time;
+    }
+
     private void ShootOffensive()
     {
+        LastOffensive = Time.time;
+
         switch (ActiveMask_Offensive)
         {
             case MaskType.Fire:
@@ -176,11 +310,15 @@ public class PlayerController : MonoBehaviour
 
     private void MeleeAttack()
     {
+        LastHit = Time.time;
+
         SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleeswing);
     }
 
     private void ActivateDefensive()
     {
+        LastDefensive = Time.time;
+
         switch (ActiveMask_Defensive)
         {
             case MaskType.Ice:
