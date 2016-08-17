@@ -111,17 +111,17 @@ public class GameManager : Singleton<GameManager>
     void Awake()
     {
         base.Awake(this);
+
+        InputPlayer1 = PlayerPrefs.GetInt("P1", 1);
+        InputPlayer2 = PlayerPrefs.GetInt("P2", 2);
+        InputPlayer3 = PlayerPrefs.GetInt("P3", 3);
+        InputPlayer4 = PlayerPrefs.GetInt("P4", 4);
     }
 
     void Start()
     {
         DontDestroyOnLoad(this.gameObject);
         OnLevelWasLoaded(SceneManager.GetActiveScene().buildIndex);
-
-        InputPlayer1 = PlayerPrefs.GetInt("P1", 0);
-        InputPlayer2 = PlayerPrefs.GetInt("P2", 0);
-        InputPlayer3 = PlayerPrefs.GetInt("P3", 0);
-        InputPlayer4 = PlayerPrefs.GetInt("P4", 0);
 
         //Cursor.lockState = CursorLockMode.Confined;
         //Cursor.visible = true;
@@ -152,6 +152,18 @@ public class GameManager : Singleton<GameManager>
 
             if (LevelManager.instance != null)
                 LevelManager.instance.Initialize();
+
+            if (StartPoint1 == null)
+                StartPoint1 = GameObject.Find("StartPoint1");
+
+            if (StartPoint2 == null)
+                StartPoint2 = GameObject.Find("StartPoint2");
+
+            if (StartPoint3 == null)
+                StartPoint3 = GameObject.Find("StartPoint3");
+
+            if (StartPoint4 == null)
+                StartPoint4 = GameObject.Find("StartPoint4");
 
             Player1.ResetAll();
             Player2.ResetAll();
