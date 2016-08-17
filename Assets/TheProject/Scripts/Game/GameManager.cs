@@ -13,11 +13,17 @@ public enum GameState
 {
     Menu,
     Playing,
+    RoundPause,
     GameOver,
 }
 
 public class GameManager : Singleton<GameManager>
 {
+    public GameObject StartPoint1;
+    public GameObject StartPoint2;
+    public GameObject StartPoint3;
+    public GameObject StartPoint4;
+
     [HideInInspector]
     public PlayerController Player1
     {
@@ -74,24 +80,28 @@ public class GameManager : Singleton<GameManager>
     [HideInInspector]
     public GameState GameState;
 
-    float playingTimer;
-    float deadTimer;
+    float startedGame;
+    float startedRoundTimer;
 
     [HideInInspector]
-    public float Highscore;
+    public int Round;
 
+    [HideInInspector]
     public int InputPlayer1
     {
         get; set;
     }
+    [HideInInspector]
     public int InputPlayer2
     {
         get; set;
     }
+    [HideInInspector]
     public int InputPlayer3
     {
         get; set;
     }
+    [HideInInspector]
     public int InputPlayer4
     {
         get; set;
@@ -147,10 +157,10 @@ public class GameManager : Singleton<GameManager>
             if (LevelManager.instance != null)
                 LevelManager.instance.Initialize();
 
-            Player1.Respawn();
-            Player1.Reset();
-            Player2.Respawn();
-            Player2.Reset();
+            Player1.ResetAll();
+            Player2.ResetAll();
+            Player3.ResetAll();
+            Player4.ResetAll();
 
             SetGameState(GameState.Playing);
 
@@ -165,19 +175,22 @@ public class GameManager : Singleton<GameManager>
         {
             case GameState.GameOver:
 
-                if (Time.time - deadTimer > 2)
+                if (Input.GetMouseButtonDown(0))
                 {
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        SetGameState(GameState.Menu);
-                    }
+                    SetGameState(GameState.Menu);
                 }
                 break;
 
             case GameState.Playing:
 
-                float DeltaGameTime = Time.time - playingTimer;
+                break;
 
+            case GameState.RoundPause:
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    SetGameState(GameState.Playing);
+                }
                 break;
         }
     }
@@ -211,19 +224,19 @@ public class GameManager : Singleton<GameManager>
 
                 case global::GameState.Playing:
                     if (SceneManager.GetActiveScene().buildIndex != 1)
+                    {
                         SceneManager.LoadScene(1);
+                        startedGame = Time.time;
+                    }
 
-                    playingTimer = Time.time;
+                    startedRoundTimer = Time.time;
 
                     break;
 
+                case global::GameState.RoundPause:
+                    break;
+
                 case global::GameState.GameOver:
-
-                    deadTimer = Time.time;
-
-                    //PlayerPrefs.SetFloat("highscore", bestSurvivalTime);
-                    //PlayerPrefs.Save();
-
                     break;
             }
         }
@@ -233,15 +246,15 @@ public class GameManager : Singleton<GameManager>
     {
         get
         {
-            return Time.time - playingTimer;
+            return Time.time - startedGame;
         }
     }
 
-    public float DeadSince
+    public float RoundSince
     {
         get
         {
-            return Time.time - deadTimer;
+            return Time.time - startedRoundTimer;
         }
     }
 }

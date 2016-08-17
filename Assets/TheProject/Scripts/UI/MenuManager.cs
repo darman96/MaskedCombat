@@ -30,7 +30,6 @@ public class MenuManager : MonoBehaviour
     public Camera MainCam;
 
     public TextMesh StartGameText;
-    public TextMesh HighscoreText;
 
     public TextMesh Player1Text;
     public TextMesh Player2Text;
@@ -234,8 +233,6 @@ public class MenuManager : MonoBehaviour
             ScrollTextRight.SetActive(false);
         else
             ScrollTextRight.SetActive(true);
-
-        HighscoreText.text = GameManager.instance.Highscore.ToString("0.");
 
         switch (Choice)
         {

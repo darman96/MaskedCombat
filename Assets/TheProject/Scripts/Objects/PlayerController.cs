@@ -11,33 +11,110 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-public class PlayerController : GameAttributes
+public class PlayerController : MonoBehaviour
 {
+    #region Variables
     [SerializeField]
     [Range (1, 4)]
-    int PlayerNumber = 1;
+    public int PlayerNumber = 1;
 
-    private float LastRespawn;
+    [SerializeField]
+    public float AttackDelayOff { get; set; }
+    [SerializeField]
+    public float AttackDelayDef { get; set; }
+    [SerializeField]
+    public float AttackDelayHit { get; set; }
+    [SerializeField]
+    public float RunSpeed { get; set; }
+    [SerializeField]
+    public float JumpHeight { get; set; }
+    [SerializeField]
+    public float StunnedTime { get; set; }
+    [SerializeField]
+    public float InvulnerableTime { get; set; }
+
+    [HideInInspector]
+    public Dictionary<MaskType, Mask> OwnedMasks;
+    [HideInInspector]
+    public MaskType ActiveMask_Offensive;
+    [HideInInspector]
+    public MaskType ActiveMask_Defensive;
+
+    private float LastOffensive;
+    private float LastDefensive;
+    private float LastHit;
+    private float LastJump;
+    private float DeadTime;
+
+    private bool _IsDead;
+    public bool IsDead
+    {
+        get { return _IsDead; }
+        private set { _IsDead = value; }
+    }
+
+    private int _Score;
+    public int Score
+    {
+        get { return _Score; }
+        private set { _Score = value; }
+    }
+    #endregion
+
+    public virtual void ResetStartGame()
+    {
+        IsDead = false;
+        OwnedMasks.Clear();
+        transform.rotation = Quaternion.identity;
+
+        switch (PlayerNumber)
+        {
+            case 1:
+                transform.position = GameManager.instance.StartPoint1.transform.position;
+                break;
+            case 2:
+                transform.position = GameManager.instance.StartPoint2.transform.position;
+                break;
+            case 3:
+                transform.position = GameManager.instance.StartPoint3.transform.position;
+                break;
+            case 4:
+                transform.position = GameManager.instance.StartPoint4.transform.position;
+                break;
+        }
+    }
+
+    public virtual void ResetAll()
+    {
+        Score = 0;
+
+        ResetStartGame();
+    }
+
+    public virtual void AddWin ()
+    {
+        _Score++;
+    }
 
     void Start()
     {
-        Reset();
+        ResetAll();
     }
 
     private void Update()
     {
-        if (IsDead || Time.time - LastRespawn < 0.5f)
+        if (Time.time - DeadTime < StunnedTime)
         {
             return;
         }
 
-        if (Input.GetMouseButtonDown(0) && Health > 5)
-            ShootBullet();
+        if (Input.GetMouseButtonDown(0) && Time.time - LastHit > AttackDelayHit)
+            MeleeAttack();
     }
 
     private void FixedUpdate()
     {
-        if (IsDead || Time.time - LastRespawn < 0.5f)
+        if (Time.time - DeadTime < StunnedTime)
         {
             return;
         }
@@ -51,49 +128,35 @@ public class PlayerController : GameAttributes
 
     void OnCollisionEnter(Collision col)
     {
-        if (IsDead || Time.time - LastRespawn < 0.5f)
+        if (Time.time - DeadTime < InvulnerableTime)
         {
             return;
         }
-
-        if (col.gameObject.tag == "Deadly")
-            HitForDamage(100, true);
 
         if (col.gameObject.tag != "EnemyWeapon")
             return;
 
-        HitForDamage(10, false);
+        OnWasHit();
     }
 
-    public new void Reset()
+    public void OnWasHit()
     {
-        transform.position = Vector3.zero;
-        base.Reset();
-    }
-    public void Respawn()
-    {
-        LastRespawn = Time.time;
-        ResetHealth();
-        this.gameObject.SetActive(true);       
-    }
-    public void HitForDamage(int amount, bool cankill)
-    {
-        SubtractHealth(amount/10, cankill);
-
         SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.death);
-
-        if (IsDead)
-        {
-            //this.gameObject.SetActive(false);
-
-            SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.gameover, true);
-            GameManager.instance.SetGameState(GameState.GameOver);
-        }
     }
 
-    private void ShootBullet()
+    private void ShootOffensive()
     {
-        //WeaponManager.instance.CreateWeapon(EyeCam.transform.position + EyeCam.transform.right * -0.4f, EyeCam.transform.rotation, EyeCam.transform.forward * 15, WeaponType.LaserWeapon);
-        //SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+        WeaponManager.instance.CreateWeapon(transform.position + transform.right * -0.4f, transform.rotation, transform.forward * 15, WeaponType.LaserWeapon);
+        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+    }
+
+    private void MeleeAttack()
+    {
+        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleeswing);
+    }
+
+    private void ActivateDefensive()
+    {
+        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.alienroar);
     }
 }
