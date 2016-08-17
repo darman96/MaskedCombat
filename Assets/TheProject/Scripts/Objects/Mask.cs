@@ -13,7 +13,7 @@ public enum MaskType
     Lightning
 }
 
-public class Mask
+public class Mask : MonoBehaviour
 {
     public MaskType Type;
     public int Owner;

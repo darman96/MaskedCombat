@@ -266,7 +266,11 @@ public class PlayerController : MonoBehaviour
         //    SoundManager.instance.Stop("P1Walk");
 
         pRigidbody.velocity = ResultingSpeed;
-        transform.rotation = Quaternion.LookRotation(ResultingSpeed, Vector3.up);
+
+        if (ResultingSpeed.sqrMagnitude > 1f)
+            transform.rotation = Quaternion.LookRotation(ResultingSpeed, Vector3.up);
+
+        pRigidbody.angularVelocity = Vector2.zero;
 
         //Debug.Log("Curr: " + RotY.ToString("0.0") + " Tgt: " + TgtRot.ToString("0.0") + " Delta: " + delta.ToString("0.0") + "Req: " + ReqTorque.ToString("0.0"));
     }
