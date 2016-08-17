@@ -23,6 +23,7 @@ public class GameManager : Singleton<GameManager>
     public GameObject StartPoint2;
     public GameObject StartPoint3;
     public GameObject StartPoint4;
+    public float MaxRoundTime = 90f;
 
     [HideInInspector]
     public PlayerController Player1
@@ -132,16 +133,11 @@ public class GameManager : Singleton<GameManager>
         {
             SetGameState(GameState.Menu);
 
-            //SoundManager.instance.Stop("alieneating");
-
             //Cursor.lockState = CursorLockMode.Confined;
             //Cursor.visible = true;
         }
         else if (level == 1)
         {
-            if (EnemyManager.instance != null)
-                EnemyManager.instance.Initialize();
-
             if (WeaponManager.instance != null)
                 WeaponManager.instance.Initialize();
 
@@ -171,6 +167,11 @@ public class GameManager : Singleton<GameManager>
 
     void Update()
     {
+        if (Time.time - startedRoundTimer > MaxRoundTime)
+        {
+            SetGameState(GameState.GameOver);
+        }
+
         switch (GameState)
         {
             case GameState.GameOver:

@@ -146,8 +146,32 @@ public class PlayerController : MonoBehaviour
 
     private void ShootOffensive()
     {
-        WeaponManager.instance.CreateWeapon(transform.position + transform.right * -0.4f, transform.rotation, transform.forward * 15, WeaponType.LaserWeapon);
-        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+        switch (ActiveMask_Offensive)
+        {
+            case MaskType.Fire:
+
+                WeaponManager.instance.CreateWeapon(transform.position + transform.right * -0.4f, transform.rotation, transform.forward * 15, WeaponType.Fireball);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                break;
+
+            case MaskType.Earth:
+
+                WeaponManager.instance.CreateWeapon(transform.position + transform.right * -0.4f, transform.rotation, transform.forward * 15, WeaponType.Earth);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                break;
+
+            case MaskType.Lightning:
+
+                WeaponManager.instance.CreateWeapon(transform.position + transform.right * -0.4f, transform.rotation, transform.forward * 15, WeaponType.Lightning);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                break;
+
+            case MaskType.Water:
+
+                WeaponManager.instance.CreateWeapon(transform.position + transform.right * -0.4f, transform.rotation, transform.forward * 15, WeaponType.Water);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                break;
+        }
     }
 
     private void MeleeAttack()
@@ -157,6 +181,27 @@ public class PlayerController : MonoBehaviour
 
     private void ActivateDefensive()
     {
-        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.alienroar);
+        switch (ActiveMask_Defensive)
+        {
+            case MaskType.Ice:
+
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                break;
+
+            case MaskType.Metal:
+
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                break;
+
+            case MaskType.Nature:
+
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                break;
+
+            case MaskType.Wind:
+
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                break;
+        }
     }
 }

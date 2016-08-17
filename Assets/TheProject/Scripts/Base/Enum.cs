@@ -8,54 +8,16 @@ Copyright 2016 TacDev [http://www.tacdev.eu] Contact: support@tacdev.eu
 using UnityEngine;
 using System.Collections;
 
-public enum DetectionState
-{
-    Calm, // Has no idea
-    Alarmed, // Has heard things
-    Aggressive, // Has seen things
-    End
-}
-
-public enum AIState
-{
-    Sleeping,
-    Idling,
-    Patrolling,
-    Attacking,
-    Dead,
-    End
-}
-
-public enum MovementType
-{
-    Walking,
-    Running,
-    Crouching,
-    Jumping,
-    Climbing,
-    Attack,
-    SpecialAttack,
-    Flying,
-    End
-}
-
-public enum EnemyType
-{
-    Alien,
-    Drone,
-    Facecrab,
-    None,
-}
-
-public enum WeaponType
-{
-    LaserWeapon,
-    EnemyWeapon,
-}
-
 public enum PickupType
 {
-    Pickup1,
+    FireMask,
+    WaterMask,
+    IceMask,
+    WindMask,
+    MetalMask,
+    NatureMask,
+    EarthMask,
+    LightningMask
 }
 
 public enum EffectType
@@ -70,21 +32,17 @@ public enum EffectType
 
 public enum SoundType
 {
-    aliendeath,
-    aliendeath2,
-    aliendeath3,
-    aliendeath4,
-    aliendeath5,
+    fire,
+    water,
+    ice,
+    wind,
+    metal,
+    nature,
+    earth,
+    lightning,
+
     lasershot,
-    laserreload,
-    alienhiss,
-    alienroar,
-    aliensnarl,
-    alieneating,
-    alienjump,
     bulletshot,
-    shield,
-    chargelaser,
     congratulations,
     d,
     death,
@@ -94,8 +52,6 @@ public enum SoundType
     ding,
     disk,
     dong,
-    doorclose,
-    dooropen,
     explosion,
     footstep,
     g,
@@ -103,28 +59,16 @@ public enum SoundType
     godmode,
     hit,
     jump,
-    ladder,
     land,
-    largedoor,
     laseron,
     lightningball,
     meleehit,
     meleeswing,
     menu,
     menupress,
-    needshelp,
     o,
     pickup,
-    press2,
-    robotvoice,
     spawn,
-    speech_anflugkontrolle,
-    speech_brueckemitwaffen,
-    speech_ichbindrin,
-    speech_intro,
-    speech_plan,
-    speech_scheisse,
-    speech_enteredstation,
     spray,
     steps,
     teleportend,
@@ -132,4 +76,12 @@ public enum SoundType
     transform,
     unable,
     victory,
+}
+
+public enum WeaponType
+{
+    Fireball,
+    Water,
+    Earth,
+    Lightning
 }
