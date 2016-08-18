@@ -24,7 +24,8 @@ public class PlayerController : MonoBehaviour
     public float TurnSpeed = 5f;
     public float JumpHeight = 5f;
     public float StunnedTime = 2.0f;
-    public float InvulnerableTime = 4.0f;
+    public float DizzyTime = 0.5f;
+    public float InvulnerableTime = 5.0f;
     public float deadzone = 0.5f;
     public GameObject StunnedEffect;
     public GameObject InvulnerableEffect;
@@ -41,7 +42,7 @@ public class PlayerController : MonoBehaviour
     private float LastHit;
     private float LastJump;
     private float DeadTime = -10;
-    private float DizzyTime = -10;
+    private float EnteredDizzyTime = -10;
     private int Joystick;
     private Vector2 leftstick;
     private Vector2 rightstick;
@@ -139,7 +140,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (Time.time - DizzyTime < StunnedTime)
+        if (Time.time - EnteredDizzyTime < DizzyTime)
         {
             IsStunned = true;
             pRigidbody.velocity = new Vector3(0, pRigidbody.velocity.y, 0);
@@ -294,6 +295,9 @@ public class PlayerController : MonoBehaviour
 
     public void OnWasHitMelee()
     {
+        if (IsInvulnerable)
+            return;
+
         SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.explosion);
         ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, Quaternion.identity, Vector2.zero, EffectType.Explosion);
 
@@ -324,10 +328,13 @@ public class PlayerController : MonoBehaviour
 
     public void OnWasHitOff()
     {
+        if (IsInvulnerable)
+            return;
+
         SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.hit);
         ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, Quaternion.identity, Vector2.zero, EffectType.Lightning);
 
-        DizzyTime = Time.time;
+        EnteredDizzyTime = Time.time;
     }
 
     public void NextOffensiveMask()
