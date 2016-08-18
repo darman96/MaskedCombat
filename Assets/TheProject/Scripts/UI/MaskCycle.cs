@@ -24,6 +24,27 @@ public class MaskCycle : MonoBehaviour
 
     public void SetMaskStatus(PlayerController pc)
     {
+        if (!pc.isActiveAndEnabled)
+        {
+            highlightOffensive1.SetActive(false);
+            highlightOffensive2.SetActive(false);
+            highlightOffensive3.SetActive(false);
+            highlightOffensive4.SetActive(false);
+            highlightDefensive1.SetActive(false);
+            highlightDefensive2.SetActive(false);
+            highlightDefensive3.SetActive(false);
+            highlightDefensive4.SetActive(false);
+            maskOffensive1.SetActive(false);
+            maskOffensive2.SetActive(false);
+            maskOffensive3.SetActive(false);
+            maskOffensive4.SetActive(false);
+            maskDefensive1.SetActive(false);
+            maskDefensive2.SetActive(false);
+            maskDefensive3.SetActive(false);
+            maskDefensive4.SetActive(false);
+            return;
+        }
+
         switch (pc.ActiveMask_Offensive)
         {
             case MaskType.Fire:

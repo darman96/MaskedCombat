@@ -426,7 +426,7 @@ public class GameManager : Singleton<GameManager>
         m.gameObject.SetActive(true);
         m.gameObject.GetComponent<Rigidbody>().AddForce(new Vector3(0, 3, 0), ForceMode.Force);
 
-        SoundManager.instance.Play(position, Quaternion.identity, SoundType.dong);
+        SoundManager.instance.Play(position, Quaternion.identity, SoundType.power_up);
     }
 
     public void PickupMask(Mask m, PlayerController pc)

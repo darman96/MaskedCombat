@@ -347,6 +347,7 @@ public class PlayerController : MonoBehaviour
         }
 
         bool Found = false;
+        MaskType ToSearch = ActiveMask_Offensive;
         ActiveMask_Offensive = MaskType.NONE;
 
         foreach (KeyValuePair<MaskType, Mask> m in OffMasks)
@@ -357,7 +358,7 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
-            if (m.Key == ActiveMask_Offensive)
+            if (m.Key == ToSearch)
                 Found = true;
         }
 
@@ -384,6 +385,7 @@ public class PlayerController : MonoBehaviour
         }
 
         bool Found = false;
+        MaskType ToSearch = ActiveMask_Defensive;
         ActiveMask_Defensive = MaskType.NONE;
 
         foreach (KeyValuePair<MaskType, Mask> m in DefMasks)
@@ -394,7 +396,7 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
-            if (m.Key == ActiveMask_Defensive)
+            if (m.Key == ToSearch)
                 Found = true;
         }
 

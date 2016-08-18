@@ -40,6 +40,12 @@ public enum SoundType
     nature,
     earth,
     lightning,
+    electric,
+    music,
+    power_up,
+    hit1,
+    hit2,
+    hit3,
 
     lasershot,
     bulletshot,

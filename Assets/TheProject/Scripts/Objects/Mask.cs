@@ -16,7 +16,7 @@ public enum MaskType
 
 public class Mask : MonoBehaviour
 {
-    public float PickupDelay = 2.0f;
+    public float PickupDelay = 5.0f;
     public GameObject Highlight;
 
     public MaskType Type;
