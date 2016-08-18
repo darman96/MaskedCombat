@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 ResultingSpeed;
     private bool IsInvulnerable;
     private bool IsStunned;
+    private bool IsJumping;
 
     private int _Score;
     public int Score
@@ -127,6 +128,18 @@ public class PlayerController : MonoBehaviour
     {
         if (GameManager.instance == null || GameManager.instance.GameState != GameState.Playing)
             return;
+
+        // scale character while jumping
+        if (transform.position.y > 0)
+        {
+            float scale = Mathf.Clamp(1 + transform.position.y, 1, 1.5f);
+            transform.localScale = new Vector3(scale, scale, scale);
+        }
+        else
+        { 
+            // reset scale when not in air
+            transform.localScale = Vector3.one;
+        }
 
         if (Time.time - DeadTime < StunnedTime)
         {
@@ -327,6 +340,7 @@ public class PlayerController : MonoBehaviour
         }
 
         bool Found = false;
+        MaskType toSearch = ActiveMask_Offensive;
         ActiveMask_Offensive = MaskType.NONE;
 
         foreach (KeyValuePair<MaskType, Mask> m in OffMasks)
@@ -337,7 +351,7 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
-            if (m.Key == ActiveMask_Offensive)
+            if (m.Key == toSearch)
                 Found = true;
         }
 
@@ -364,6 +378,7 @@ public class PlayerController : MonoBehaviour
         }
 
         bool Found = false;
+        MaskType toSearch = ActiveMask_Defensive;
         ActiveMask_Defensive = MaskType.NONE;
 
         foreach (KeyValuePair<MaskType, Mask> m in DefMasks)
@@ -374,7 +389,7 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
-            if (m.Key == ActiveMask_Defensive)
+            if (m.Key == toSearch)
                 Found = true;
         }
 
@@ -396,8 +411,10 @@ public class PlayerController : MonoBehaviour
         //else
         //    SoundManager.instance.Stop("P1Walk");
 
+        ResultingSpeed.y = pRigidbody.velocity.y;
         pRigidbody.velocity = ResultingSpeed;
 
+        ResultingSpeed.y = 0;
         if (ResultingSpeed.sqrMagnitude > 1f)
             transform.rotation = Quaternion.LookRotation(ResultingSpeed, Vector3.up);
 
@@ -408,6 +425,10 @@ public class PlayerController : MonoBehaviour
 
     void Jump()
     {
+        pRigidbody.AddForce(Vector3.up * JumpHeight * 40, ForceMode.Impulse);
+        Debug.Log("Jump!");
+
+        
         LastJump = Time.time;
     }
 
