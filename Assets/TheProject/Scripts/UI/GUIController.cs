@@ -12,11 +12,17 @@ using System.Collections.Generic;
 
 public class GUIController : MonoBehaviour
 {
-
     public MaskCycle player1Cycle;
     public MaskCycle player2Cycle;
     public MaskCycle player3Cycle;
     public MaskCycle player4Cycle;
+
+    public GameObject RoundPausePanel;
+    public Text WinningPlayer;
+    public Text GreenWins;
+    public Text BlueWins;
+    public Text YellowWins;
+    public Text PurpleWins;
 
     private PlayerController pPlayer1;
     private PlayerController pPlayer2;
@@ -33,26 +39,40 @@ public class GUIController : MonoBehaviour
 
     void Update()
     {
+        player1Cycle.SetMaskStatus(pPlayer1);
+        player2Cycle.SetMaskStatus(pPlayer2);
+        player3Cycle.SetMaskStatus(pPlayer3);
+        player4Cycle.SetMaskStatus(pPlayer4);
 
-        if (player1Cycle.ActiveOffensive != pPlayer1.ActiveMask_Offensive)
-            player1Cycle.ActiveOffensive = pPlayer1.ActiveMask_Offensive;
-        if (player1Cycle.ActiveDefensive != pPlayer1.ActiveMask_Defensive)
-            player1Cycle.ActiveDefensive = pPlayer1.ActiveMask_Defensive;
+        if (GameManager.instance.GameState == GameState.RoundPause)
+        {
+            RoundPausePanel.SetActive(true);
 
-        if (player2Cycle.ActiveOffensive != pPlayer2.ActiveMask_Offensive)
-            player2Cycle.ActiveOffensive = pPlayer2.ActiveMask_Offensive;
-        if (player2Cycle.ActiveDefensive != pPlayer2.ActiveMask_Defensive)
-            player2Cycle.ActiveDefensive = pPlayer2.ActiveMask_Defensive;
+            switch (GameManager.instance.Winner)
+            {
+                case 0:
+                    WinningPlayer.text = "No one. Cowards!";
+                    break;
+                case 1:
+                    WinningPlayer.text = "Green";
+                    break;
+                case 2:
+                    WinningPlayer.text = "Blue";
+                    break;
+                case 3:
+                    WinningPlayer.text = "Purple";
+                    break;
+                case 4:
+                    WinningPlayer.text = "Yellow";
+                    break;
+            }
 
-        if (player3Cycle.ActiveOffensive != pPlayer3.ActiveMask_Offensive)
-            player3Cycle.ActiveOffensive = pPlayer3.ActiveMask_Offensive;
-        if (player3Cycle.ActiveDefensive != pPlayer3.ActiveMask_Defensive)
-            player3Cycle.ActiveDefensive = pPlayer3.ActiveMask_Defensive;
-
-        if (player4Cycle.ActiveOffensive != pPlayer4.ActiveMask_Offensive)
-            player4Cycle.ActiveOffensive = pPlayer4.ActiveMask_Offensive;
-        if (player4Cycle.ActiveDefensive != pPlayer4.ActiveMask_Defensive)
-            player4Cycle.ActiveDefensive = pPlayer4.ActiveMask_Defensive;
-
+            GreenWins.text = pPlayer1.Score.ToString();
+            BlueWins.text = pPlayer2.Score.ToString();
+            PurpleWins.text = pPlayer3.Score.ToString();
+            YellowWins.text = pPlayer4.Score.ToString();
+        }
+        else
+            RoundPausePanel.SetActive(false);
     }
 }

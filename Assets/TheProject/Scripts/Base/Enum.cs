@@ -26,7 +26,6 @@ public enum EffectType
     BloodSprayLarge,
     BigBang,
     Explosion,
-    Explosion2,
     Electricity,
 }
 
