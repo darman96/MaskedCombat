@@ -23,17 +23,38 @@ public class PlayerController : MonoBehaviour
     public float IceActivationPeriod = 2f;
     public float NatureActivationPeriod = 2f;
     public float MetalActivationPeriod = 2f;
-    public float JumpDelay = 1.0f;
+    public float JumpDelay = 2.0f;
     public float RunSpeed = 6f;
     public float TurnSpeed = 5f;
-    public float JumpHeight = 5f;
-    public float StunnedTime = 2.0f;
-    public float DizzyTime = 0.5f;
-    public float InvulnerableTime = 5.0f;
-    public float deadzone = 0.5f;
+    public float JumpHeight = 12f;
+    public float StunnedAfterMelee = 2.0f;
+    public float InvulnerableAfterMelee = 5.0f;
+    public float InvulnerableAfterOff = 1.0f;
+    public float IceSlowsTime = 3;
+    public float IceSlowsAmount = 0.3f;
+    public float FireSlowsTime = 2.0f;
+    public float FireSlowsAmount = 0.6f;
+    public float WaterSlowsTime = 3;
+    public float WaterSlowsAmount = 0.5f;
+    public float FireStunsTime = 0.5f;
+    public float LightningStunsTime = 1.0f;
+    public float PullForce = 40f;
+    public float PushForce = 20f;
+
+    public float deadzone = 0.8f;
+
     public GameObject StunnedEffect;
     public GameObject InvulnerableEffect;
     public GameObject PlayerMesh;
+
+    public GameObject WindMask;
+    public GameObject FireMask;
+    public GameObject EarthMask;
+    public GameObject LightningMask;
+    public GameObject NatureMask;
+    public GameObject MetalMask;
+    public GameObject WaterMask;
+    public GameObject IceMask;
 
     [HideInInspector]
     public Dictionary<MaskType, Mask> OwnedMasks = new Dictionary<MaskType, Mask>();
@@ -46,20 +67,24 @@ public class PlayerController : MonoBehaviour
     private float LastDefensive;
     private float LastHit;
     private float LastJump;
-    private float DeadTime = -10;
-    private float EnteredDizzyTime = -10;
+
     private int Joystick;
     private Vector2 leftstick;
     private Vector2 rightstick;
+
     private Animator pAnimator;
     private Rigidbody pRigidbody;
     private Vector3 ResultingSpeed;
+
     private bool IsInvulnerable;
-    private bool IsShieldedFromRanged;
-    private bool IsProtectedFromMelee;
     private bool IsStunned;
-    private bool IsJumping;
-    private float DefensiveUntilTime;
+    private bool IsSlowed;
+    private float SlowedAmount;
+
+    private float InvulnerableUntilTime = -10;
+    private float StunnedUntilTime = -10;
+    private float SlowedUntilTime = -10;
+    private float DefensiveUntilTime = -10;
     private MaskType DefensiveActivated;
 
     private int _Score;
@@ -140,12 +165,35 @@ public class PlayerController : MonoBehaviour
         if (GameManager.instance == null || GameManager.instance.GameState != GameState.Playing)
             return;
 
+        UpdateMasks();
+
+        IsInvulnerable = false;
+        IsStunned = false;
+        IsSlowed = false;
+
         if (Time.time > DefensiveUntilTime)
         {
+            switch (DefensiveActivated)
+            {
+                case MaskType.Metal:
+                    StartCoroutine("ScaleDownMask", MetalMask);
+                    break;
+
+                case MaskType.Nature:
+                    StartCoroutine("ScaleDownMask", NatureMask);
+                    break;
+
+                case MaskType.Wind:
+                    StartCoroutine("ScaleDownMask", WindMask);
+                    break;
+
+                case MaskType.Ice:
+                    StartCoroutine("ScaleDownMask", IceMask);
+                    break;
+            }
+
             DefensiveActivated = MaskType.NONE;
             PlayerMesh.SetActive(true);
-            IsShieldedFromRanged = false;
-            IsProtectedFromMelee = false;
         }
         else
         {
@@ -153,63 +201,48 @@ public class PlayerController : MonoBehaviour
             {
                 PlayerMesh.SetActive(false);
             }
-            else if (DefensiveActivated == MaskType.Ice)
-            {
-                IsShieldedFromRanged = true;
-            }
             else if (DefensiveActivated == MaskType.Metal)
             {
-                IsProtectedFromMelee = true;
+                IsInvulnerable = true;
             }
         }
 
         // scale character while jumping
-            if (transform.position.y > 0.2f)
+        if (transform.position.y > 0.2f)
         {
-            float scale = Mathf.Clamp(1 + transform.position.y, 1, 1.5f);
+            float scale = Mathf.Clamp (1 + transform.position.y, 1, 2.0f);
             transform.localScale = new Vector3(scale, scale, scale);
-            IsJumping = true;
         }
         else
         { 
-            // reset scale when not in air
             transform.localScale = Vector3.one;
-            IsJumping = false;
         }
 
-        if (Time.time - DeadTime < StunnedTime)
-        {
-            IsStunned = true;
-            IsInvulnerable = true;
-            pRigidbody.velocity = new Vector3(0, pRigidbody.velocity.y, 0);
-            StunnedEffect.SetActive(true);
-
-            return;
-        }
-
-        if (Time.time - EnteredDizzyTime < DizzyTime)
+        if (Time.time < StunnedUntilTime)
         {
             IsStunned = true;
             pRigidbody.velocity = new Vector3(0, pRigidbody.velocity.y, 0);
             StunnedEffect.SetActive(true);
-            return;
         }
 
-        IsStunned = false;
-        StunnedEffect.SetActive(false);
-
-        if (Time.time - DeadTime < InvulnerableTime)
+        if (Time.time < InvulnerableUntilTime)
         {
             IsInvulnerable = true;
             InvulnerableEffect.SetActive(true);
         }
-        else
+
+        if (Time.time < SlowedUntilTime)
         {
-            IsInvulnerable = false;
-            InvulnerableEffect.SetActive(false);
+            IsSlowed = true;
         }
 
-        if (Joystick == -1)
+        if (!IsStunned)
+            StunnedEffect.SetActive(false);
+
+        if (!IsInvulnerable)
+            InvulnerableEffect.SetActive(false);
+
+        if (Joystick == -1 || IsStunned)
             return;
 
         float deltaJump = Time.time - LastJump;
@@ -217,7 +250,7 @@ public class PlayerController : MonoBehaviour
 
         if (Joystick == 0)
         {
-            if (Input.GetButtonDown("KeyboardJump") && deltaJump > JumpDelay)
+            if (Input.GetButtonDown("KeyboardJump") && deltaJump > JumpDelay && transform.position.y <= 0.1f)
             {
                 Jump();
             }
@@ -243,7 +276,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if (Input.GetButtonDown("ButtonA_P" + Joystick) && deltaJump > JumpDelay)
+            if (Input.GetButtonDown("ButtonA_P" + Joystick) && deltaJump > JumpDelay && transform.position.y <= 0.1f)
             {
                 Jump();
             }
@@ -287,6 +320,11 @@ public class PlayerController : MonoBehaviour
             //    rightstick = rightstick.normalized * ((rightstick.magnitude - deadzone) / (1 - deadzone));
         }
 
+        if (IsSlowed)
+        {
+            leftstick *= SlowedAmount;
+            rightstick *= SlowedAmount;
+        }
     }
 
     private void FixedUpdate()
@@ -294,21 +332,85 @@ public class PlayerController : MonoBehaviour
         if (GameManager.instance == null || GameManager.instance.GameState != GameState.Playing)
             return;
 
+        UpdateAnimator();
+
         if (IsStunned)
-        {
             return;
-        }
 
         Move();
-        UpdateAnimator();
         //Debug.Log(AxisX.ToString("0.0") + " : " + AxisY.ToString("0.0") + (Jumping ? "JUMP " : " ") + (Crouching ? "CROUCH " : " ") + (IsGrounded ? "GROUNDED" : ""));
     }
 
     void UpdateAnimator()
     {
-        pAnimator.SetFloat("Forward", Mathf.Abs(leftstick.y), 0.01f, Time.deltaTime);
+        pAnimator.SetFloat("Forward", (IsStunned ? 0.0f : Mathf.Abs(leftstick.y)), 0.01f, Time.deltaTime);
         pAnimator.SetBool("IsStunned", IsStunned);
         pAnimator.SetBool("IsInvulnerable", IsInvulnerable);
+    }
+
+    void UpdateMasks()
+    {
+        switch (ActiveMask_Defensive)
+        {
+            case MaskType.Metal:
+                MetalMask.SetActive(true);
+                IceMask.SetActive(false);
+                NatureMask.SetActive(false);
+                WindMask.SetActive(false);
+                break;
+
+            case MaskType.Ice:
+                MetalMask.SetActive(false);
+                IceMask.SetActive(true);
+                NatureMask.SetActive(false);
+                WindMask.SetActive(false);
+                break;
+
+            case MaskType.Nature:
+                MetalMask.SetActive(false);
+                IceMask.SetActive(false);
+                NatureMask.SetActive(true);
+                WindMask.SetActive(false);
+                break;
+
+            case MaskType.Wind:
+                MetalMask.SetActive(false);
+                IceMask.SetActive(false);
+                NatureMask.SetActive(false);
+                WindMask.SetActive(true);
+                break;
+        }
+
+        switch (ActiveMask_Offensive)
+        {
+            case MaskType.Fire:
+                FireMask.SetActive(true);
+                EarthMask.SetActive(false);
+                LightningMask.SetActive(false);
+                WaterMask.SetActive(false);
+                break;
+
+            case MaskType.Earth:
+                FireMask.SetActive(false);
+                EarthMask.SetActive(true);
+                LightningMask.SetActive(false);
+                WaterMask.SetActive(false);
+                break;
+
+            case MaskType.Lightning:
+                FireMask.SetActive(false);
+                EarthMask.SetActive(false);
+                LightningMask.SetActive(true);
+                WaterMask.SetActive(false);
+                break;
+
+            case MaskType.Water:
+                FireMask.SetActive(false);
+                EarthMask.SetActive(false);
+                LightningMask.SetActive(false);
+                WaterMask.SetActive(true);
+                break;
+        }
     }
 
     void OnTriggerEnter(Collider other)
@@ -337,12 +439,12 @@ public class PlayerController : MonoBehaviour
         WeaponController wpn = col.gameObject.GetComponent<WeaponController>();
 
         if (wpn && wpn.Owner != PlayerNumber)
-            OnWasHitOff();
+            OnWasHitOff(MaskType.Fire, col.gameObject.transform.position);
     }
 
     public void OnWasHitMelee()
     {
-        if (IsInvulnerable || IsProtectedFromMelee)
+        if (IsInvulnerable)
             return;
 
         switch (Random.Range(0, 3))
@@ -375,19 +477,20 @@ public class PlayerController : MonoBehaviour
             }
 
             GameManager.instance.DropMask(m.Value, transform.position);
-
-            DeadTime = Time.time;
         }
         else
         {
             ActiveMask_Offensive = MaskType.NONE;
             ActiveMask_Defensive = MaskType.NONE;
         }
+
+        StunnedUntilTime = Time.time + StunnedAfterMelee;
+        InvulnerableUntilTime = Time.time + InvulnerableAfterMelee;
     }
 
-    public void OnWasHitOff()
+    public void OnWasHitOff(MaskType weapon, Vector3 from)
     {
-        if (IsInvulnerable || IsShieldedFromRanged)
+        if (IsInvulnerable)
             return;
 
         switch (Random.Range(0, 3))
@@ -405,7 +508,53 @@ public class PlayerController : MonoBehaviour
 
         ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, Quaternion.identity, Vector2.zero, EffectType.Lightning);
 
-        EnteredDizzyTime = Time.time;
+        switch (weapon)
+        {
+            case MaskType.Ice:
+
+                if (Time.time > SlowedUntilTime + 2.5f)
+                {
+                    SlowedUntilTime = Time.time + IceSlowsTime;
+                    SlowedAmount = IceSlowsAmount;
+                }
+                break;
+
+            case MaskType.Fire:
+
+                if (Time.time > SlowedUntilTime + 2.5f)
+                {
+                    SlowedUntilTime = Time.time + FireSlowsTime;
+                    SlowedAmount = FireSlowsAmount;
+                }
+
+                if (Time.time > StunnedUntilTime + 5f)
+                    StunnedUntilTime = Time.time + FireStunsTime;
+
+                InvulnerableUntilTime = Time.time + InvulnerableAfterOff;
+                break;
+
+            case MaskType.Earth:
+
+                pRigidbody.AddForce((transform.position - from).normalized * PullForce);
+                break;
+
+            case MaskType.Water:
+
+                pRigidbody.AddForce((from - transform.position).normalized * PushForce);
+
+                if (Time.time > SlowedUntilTime + 2.5f)
+                {
+                    SlowedUntilTime = Time.time + WaterSlowsTime;
+                    SlowedAmount = WaterSlowsAmount;
+                }
+                break;
+
+            case MaskType.Lightning:
+
+                if (Time.time > StunnedUntilTime + 5f)
+                    StunnedUntilTime = Time.time + LightningStunsTime;
+                break;
+        }
     }
 
     public void NextOffensiveMask()
@@ -520,7 +669,7 @@ public class PlayerController : MonoBehaviour
     {
         LastOffensive = Time.time;
 
-        pAnimator.SetTrigger("DefAttack");
+        pAnimator.SetTrigger("OffAttack");
 
         float roty = transform.rotation.eulerAngles.y % 360;
         float targetroty = 0;
@@ -551,7 +700,7 @@ public class PlayerController : MonoBehaviour
             // Cone forward 4 units = short stun + short slow
             case MaskType.Fire:
 
-                GameObject wpn = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Fireball);
+                GameObject wpn = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Fire);
                 wpn.GetComponent<WeaponController>().Owner = PlayerNumber;
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.fire);
@@ -564,6 +713,20 @@ public class PlayerController : MonoBehaviour
                 wpn2.GetComponent<WeaponController>().Owner = PlayerNumber;
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.earth);
+
+                RaycastHit[] hits = Physics.SphereCastAll(transform.position, 1, CardinalRotation * Vector3.forward, 4, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
+
+                foreach (RaycastHit hit in hits)
+                {
+                    if (hit.collider.gameObject != gameObject)
+                    {
+                        PlayerController pc = hit.collider.gameObject.GetComponent<PlayerController>();
+
+                        if (pc != null)
+                            pc.OnWasHitOff(ActiveMask_Offensive, transform.position);
+                    }
+                }
+
                 break;
 
             // Line Raycast hit = long stun
@@ -571,7 +734,22 @@ public class PlayerController : MonoBehaviour
 
                 GameObject wpn3 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Lightning);
                 wpn3.GetComponent<WeaponController>().Owner = PlayerNumber;
+
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lightning);
+
+                RaycastHit[] hits2 = Physics.SphereCastAll(transform.position, 0.3f, CardinalRotation * Vector3.forward, 10f, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
+
+                foreach (RaycastHit hit in hits2)
+                {
+                    if (hit.collider.gameObject != gameObject)
+                    {
+                        PlayerController pc = hit.collider.gameObject.GetComponent<PlayerController>();
+
+                        if (pc != null)
+                            pc.OnWasHitOff(ActiveMask_Offensive, transform.position);
+                    }
+                }
+
                 break;
 
             // SphereRaycast pushback 3 units + long slow
@@ -579,7 +757,22 @@ public class PlayerController : MonoBehaviour
 
                 GameObject wpn4 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Water);
                 wpn4.GetComponent<WeaponController>().Owner = PlayerNumber;
+
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.water);
+
+                RaycastHit[] hits3 = Physics.SphereCastAll(transform.position, 1, CardinalRotation * Vector3.forward, 6, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
+
+                foreach (RaycastHit hit in hits3)
+                {
+                    if (hit.collider.gameObject != gameObject)
+                    {
+                        PlayerController pc = hit.collider.gameObject.GetComponent<PlayerController>();
+
+                        if (pc != null)
+                            pc.OnWasHitOff(ActiveMask_Offensive, transform.position);
+                    }
+                }
+
                 break;
         }
     }
@@ -592,7 +785,7 @@ public class PlayerController : MonoBehaviour
 
         SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleeswing);
 
-        Collider[] hits = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 1.5f);
+        Collider[] hits = Physics.OverlapSphere(transform.position + transform.up, 2.0f);
 
         foreach (Collider col in hits)
         {
@@ -606,6 +799,18 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+    }
+
+    private IEnumerator ScaleDownMask(GameObject Mask)
+    {
+        while (Mask.transform.localScale.x > 1.0f)
+        {
+            Mask.transform.localScale = new Vector3(Mask.transform.localScale.x - 0.2f, Mask.transform.localScale.x - 0.2f, Mask.transform.localScale.x - 0.2f);
+
+            yield return new WaitForSeconds(0.02f);
+        }
+
+        Mask.transform.localScale = Vector3.one;
     }
 
     private void ActivateDefensive()
@@ -623,6 +828,20 @@ public class PlayerController : MonoBehaviour
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.ice);
                 DefensiveUntilTime = Time.time + IceActivationPeriod;
+                IceMask.transform.localScale = new Vector3(3f, 3f, 3f);
+
+                Collider[] hits = Physics.OverlapSphere(transform.position, 3, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
+
+                foreach (Collider hit in hits)
+                {
+                    if (hit.gameObject != gameObject)
+                    {
+                        PlayerController pc = hit.gameObject.GetComponent<PlayerController>();
+
+                        if (pc != null)
+                            pc.OnWasHitOff(ActiveMask_Defensive, transform.position);
+                    }
+                }
 
                 break;
             
@@ -631,6 +850,7 @@ public class PlayerController : MonoBehaviour
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.metal);
                 DefensiveUntilTime = Time.time + MetalActivationPeriod;
+                MetalMask.transform.localScale = new Vector3(3f, 3f, 3f);
 
                 break;
 
@@ -639,6 +859,7 @@ public class PlayerController : MonoBehaviour
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.invisible);
                 DefensiveUntilTime = Time.time + NatureActivationPeriod;
+                NatureMask.transform.localScale = new Vector3(3f, 3f, 3f);
 
                 break;
 
@@ -647,6 +868,7 @@ public class PlayerController : MonoBehaviour
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.wind);
                 DefensiveUntilTime = Time.time + WindActivationPeriod;
+                WindMask.transform.localScale = new Vector3(3f, 3f, 3f);
 
                 break;
         }

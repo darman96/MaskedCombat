@@ -195,6 +195,8 @@ public class GameManager : Singleton<GameManager>
             if (Player4.ResetAll())
                 NumberOfPlayers++;
 
+            Round = 1;
+
             PrepareNewRound();
 
             SetGameState(GameState.Playing);
@@ -284,6 +286,14 @@ public class GameManager : Singleton<GameManager>
 
                 if (Time.time - startedPause > 2f && Input.GetButtonDown("Submit"))
                 {
+                    if (Round == 5)
+                    {
+                        SetGameState(GameState.Menu);
+                        return;
+                    }
+
+                    Round++;
+
                     PrepareNewRound();
                     SetGameState(GameState.Playing);
                 }

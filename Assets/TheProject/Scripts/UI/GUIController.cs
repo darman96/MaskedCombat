@@ -23,6 +23,7 @@ public class GUIController : MonoBehaviour
     public Text BlueWins;
     public Text YellowWins;
     public Text PurpleWins;
+    public Text RoundCounter;
 
     private PlayerController pPlayer1;
     private PlayerController pPlayer2;
@@ -74,5 +75,7 @@ public class GUIController : MonoBehaviour
         }
         else
             RoundPausePanel.SetActive(false);
+
+        RoundCounter.text = GameManager.instance.Round.ToString();
     }
 }

@@ -91,7 +91,7 @@ public enum SoundType
 
 public enum WeaponType
 {
-    Fireball,
+    Fire,
     Water,
     Earth,
     Lightning
