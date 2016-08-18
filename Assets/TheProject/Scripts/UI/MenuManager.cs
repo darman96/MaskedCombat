@@ -21,8 +21,11 @@ public class MenuManager : MonoBehaviour
 {
     public GameObject StartGame;
 
-    public GameObject ScrollTextLeft;
-    public GameObject ScrollTextRight;
+    public GameObject Designer;
+    public GameObject Programmer;
+    public GameObject Artist;
+    public GameObject SoundArtist;
+
     public GameObject LoadScreen;
 
     public AudioSource TitleSound;
@@ -225,14 +228,24 @@ public class MenuManager : MonoBehaviour
     void UpdateMenu()
     {
         if ((Time.time + 2) % 4.0f > 3.5f && Random.Range (0, 3) == 0)
-            ScrollTextLeft.SetActive(false);
+            Artist.SetActive(false);
         else
-            ScrollTextLeft.SetActive(true);
+            Artist.SetActive(true);
 
         if (Time.time % 4.0f > 3.5f && Random.Range(0, 3) == 0)
-            ScrollTextRight.SetActive(false);
+            SoundArtist.SetActive(false);
         else
-            ScrollTextRight.SetActive(true);
+            SoundArtist.SetActive(true);
+
+        if ((Time.time + 2) % 4.0f > 3.5f && Random.Range(0, 3) == 0)
+            Programmer.SetActive(false);
+        else
+            Programmer.SetActive(true);
+
+        if (Time.time % 4.0f > 3.5f && Random.Range(0, 3) == 0)
+            Designer.SetActive(false);
+        else
+            Designer.SetActive(true);
 
         switch (Choice)
         {
@@ -279,33 +292,61 @@ public class MenuManager : MonoBehaviour
 
         if (GameManager.instance != null)
         {
-            if (GameManager.instance.InputPlayer1 == 0)
-                Player1Text.text = "Player 1\r\nM/KB";
-            else if (GoodInputJoy1)
-                Player1Text.text = "Player 1\r\nJoy " + GameManager.instance.InputPlayer1 + " " + Joysticks[GameManager.instance.InputPlayer1 - 1];
-            else
-                Player1Text.text = "Player1: N/A";
+            try
+            {
+                if (GameManager.instance.InputPlayer1 == 0)
+                    Player1Text.text = "Player 1\r\nM/KB";
+                else if (GameManager.instance.InputPlayer1 > 0 && GameManager.instance.InputPlayer1 - 1 < Joysticks.Length)
+                    Player1Text.text = "Player 1\r\nJoy " + GameManager.instance.InputPlayer1 + " " + Joysticks[GameManager.instance.InputPlayer1 - 1];
+                else
+                    Player1Text.text = "Player 1: N/A";
+            }
+            catch (System.Exception)
+            {
+                GameManager.instance.InputPlayer1 = -1;
+            }
 
-            if (GameManager.instance.InputPlayer2 == 0)
-                Player2Text.text = "Player 2\r\nM/KB";
-            else if (GoodInputJoy2)
-                Player2Text.text = "Player 2\r\nJoy " + GameManager.instance.InputPlayer2 + " " + Joysticks[GameManager.instance.InputPlayer2 - 1];
-            else
-                Player2Text.text = "Player2: N/A";
+            try
+            {
+                if (GameManager.instance.InputPlayer2 == 0)
+                    Player2Text.text = "Player 2\r\nM/KB";
+                else if (GameManager.instance.InputPlayer2 > 0 && GameManager.instance.InputPlayer2 - 1 < Joysticks.Length)
+                    Player2Text.text = "Player 2\r\nJoy " + GameManager.instance.InputPlayer2 + " " + Joysticks[GameManager.instance.InputPlayer2 - 1];
+                else
+                    Player2Text.text = "Player 2: N/A";
+            }
+            catch (System.Exception)
+            {
+                GameManager.instance.InputPlayer2 = -1;
+            }
 
-            if (GameManager.instance.InputPlayer3 == 0)
-                Player3Text.text = "Player 3\r\nM/KB";
-            else if (GoodInputJoy3)
-                Player3Text.text = "Player 3\r\nJoy " + GameManager.instance.InputPlayer3 + " " + Joysticks[GameManager.instance.InputPlayer3 - 1];
-            else
-                Player3Text.text = "Player3: N/A";
+            try
+            {
+                if (GameManager.instance.InputPlayer3 == 0)
+                    Player3Text.text = "Player 3\r\nM/KB";
+                else if (GameManager.instance.InputPlayer3 > 0 && GameManager.instance.InputPlayer3 - 1 < Joysticks.Length)
+                    Player3Text.text = "Player 3\r\nJoy " + GameManager.instance.InputPlayer3 + " " + Joysticks[GameManager.instance.InputPlayer3 - 1];
+                else
+                    Player3Text.text = "Player 3: N/A";
+            }
+            catch (System.Exception)
+            {
+                GameManager.instance.InputPlayer3 = -1;
+            }
 
-            if (GameManager.instance.InputPlayer4 == 0)
-                Player4Text.text = "Player 4\r\nM/KB";
-            else if (GoodInputJoy4)
-                Player4Text.text = "Player 4\r\nJoy " + GameManager.instance.InputPlayer4 + " " + Joysticks[GameManager.instance.InputPlayer4 - 1];
-            else
-                Player4Text.text = "Player4: N/A";
+            try
+            {
+                if (GameManager.instance.InputPlayer4 == 0)
+                    Player4Text.text = "Player 4\r\nM/KB";
+                else if (GameManager.instance.InputPlayer4 > 0 && GameManager.instance.InputPlayer4 - 1 < Joysticks.Length)
+                    Player4Text.text = "Player 4\r\nJoy " + GameManager.instance.InputPlayer4 + " " + Joysticks[GameManager.instance.InputPlayer4 - 1];
+                else
+                    Player4Text.text = "Player 4: N/A";
+            }
+            catch (System.Exception)
+            {
+                GameManager.instance.InputPlayer4 = -1;
+            }
         }
     }
 }

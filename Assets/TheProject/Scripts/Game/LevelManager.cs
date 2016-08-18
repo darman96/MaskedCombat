@@ -23,9 +23,5 @@ public class LevelManager : Singleton<LevelManager>
 
     void Update()
     {
-        if (GameManager.instance.GameState != CurrentSetup)
-        {
-            CurrentSetup = GameManager.instance.GameState;
-        }
     }
 }
