@@ -62,7 +62,15 @@ ModelImporter:
     optimizeGameObjects: 0
     motionNodeName: 
     animationImportErrors: 
-    animationImportWarnings: 
+    animationImportWarnings: "\nInbetween bone default rotation found in this file
+      is different from the one found in the source avatar:\n\t'left_ball_jt' : rotation
+      error = 34.886665 deg\n\nClip 'Take 001' has import animation warnings that
+      might lower retargeting quality:\nNote: Activate translation DOF on avatar to
+      improve retargeting quality.\n\t'pelvis_jt' has translation animation that will
+      be discarded.\n\t'pelvis_jt' is inbetween humanoid transforms and has rotation
+      animation that will be discarded.\n\t'spine_jt' has translation animation that
+      will be discarded.\n\t'right_ball_jt' is inbetween humanoid transforms and has
+      rotation animation that will be discarded.\n"
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     animationCompression: 3
@@ -71,7 +79,79 @@ ModelImporter:
     animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Take 001
+      takeName: Take 001
+      firstFrame: 0
+      lastFrame: 20
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: root_jt
+        weight: 1
+      - path: root_jt/pelvis_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt/left_calv_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt/left_calv_jt/left_ankle_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt/left_calv_jt/left_ankle_jt/left_ball_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt/left_calv_jt/left_ankle_jt/left_ball_jt/left_toe_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt/right_calv_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt/right_calv_jt/right_ankle_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt/right_calv_jt/right_ankle_jt/right_ball_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt/right_calv_jt/right_ankle_jt/right_ball_jt/right_toe_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/left_upperArm_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/left_upperArm_jt/left_lowerArm_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/left_upperArm_jt/left_lowerArm_jt/left_hand_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/neck_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/neck_jt/head_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/right_upperArm_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/right_upperArm_jt/right_lowerArm_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/right_upperArm_jt/right_lowerArm_jt/right_hand_jt
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 1
   meshes:
     lODScreenPercentages: []

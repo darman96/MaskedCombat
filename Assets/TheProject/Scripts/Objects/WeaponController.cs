@@ -12,6 +12,7 @@ public class WeaponController : MonoBehaviour
 {
     WeaponType Type;
     float ShotTime;
+    public int Owner;
 
     void Start()
     {
@@ -45,5 +46,11 @@ public class WeaponController : MonoBehaviour
     public void OnDisable()
     {
         WeaponManager.instance.DestroyWeapon(this.gameObject, Type);
+    }
+
+    void OnCollisionEnter(Collision col)
+    {
+        if (Time.time - ShotTime > 0.5f || col.gameObject.tag != "Player")
+            this.gameObject.SetActive(false);
     }
 }

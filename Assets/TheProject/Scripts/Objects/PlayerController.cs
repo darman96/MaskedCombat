@@ -41,6 +41,7 @@ public class PlayerController : MonoBehaviour
     private float LastHit;
     private float LastJump;
     private float DeadTime = -10;
+    private float DizzyTime = -10;
     private int Joystick;
     private Vector2 leftstick;
     private Vector2 rightstick;
@@ -132,9 +133,17 @@ public class PlayerController : MonoBehaviour
         {
             IsStunned = true;
             IsInvulnerable = true;
-            pRigidbody.velocity = Vector3.zero;
+            pRigidbody.velocity = new Vector3(0, pRigidbody.velocity.y, 0);
             StunnedEffect.SetActive(true);
 
+            return;
+        }
+
+        if (Time.time - DizzyTime < StunnedTime)
+        {
+            IsStunned = true;
+            pRigidbody.velocity = new Vector3(0, pRigidbody.velocity.y, 0);
+            StunnedEffect.SetActive(true);
             return;
         }
 
@@ -145,12 +154,12 @@ public class PlayerController : MonoBehaviour
         {
             IsInvulnerable = true;
             InvulnerableEffect.SetActive(true);
-
-            return;
         }
-
-        IsInvulnerable = false;
-        InvulnerableEffect.SetActive(false);
+        else
+        {
+            IsInvulnerable = false;
+            InvulnerableEffect.SetActive(false);
+        }
 
         if (Joystick == -1)
             return;
@@ -249,7 +258,7 @@ public class PlayerController : MonoBehaviour
 
     void UpdateAnimator()
     {
-        pAnimator.SetFloat("Forward", ResultingSpeed.magnitude, 0.01f, Time.deltaTime);
+        pAnimator.SetFloat("Forward", Mathf.Abs(leftstick.y), 0.01f, Time.deltaTime);
         pAnimator.SetBool("IsStunned", IsStunned);
         pAnimator.SetBool("IsInvulnerable", IsInvulnerable);
     }
@@ -274,10 +283,13 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (col.gameObject.tag != "EnemyWeapon")
+        if (col.gameObject.tag != "Weapon")
             return;
 
-        OnWasHitMelee();
+        WeaponController wpn = col.gameObject.GetComponent<WeaponController>();
+
+        if (wpn && wpn.Owner != PlayerNumber)
+            OnWasHitOff();
     }
 
     public void OnWasHitMelee()
@@ -308,6 +320,14 @@ public class PlayerController : MonoBehaviour
             ActiveMask_Offensive = MaskType.NONE;
             ActiveMask_Defensive = MaskType.NONE;
         }
+    }
+
+    public void OnWasHitOff()
+    {
+        SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.hit);
+        ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, Quaternion.identity, Vector2.zero, EffectType.Lightning);
+
+        DizzyTime = Time.time;
     }
 
     public void NextOffensiveMask()
@@ -421,26 +441,32 @@ public class PlayerController : MonoBehaviour
         {
             case MaskType.Fire:
 
-                WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Fireball);
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                GameObject wpn = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Fireball);
+                wpn.GetComponent<WeaponController>().Owner = PlayerNumber;
+
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.fire);
                 break;
 
             case MaskType.Earth:
 
-                WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Earth);
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                GameObject wpn2 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Earth);
+                wpn2.GetComponent<WeaponController>().Owner = PlayerNumber;
+
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.earth);
                 break;
 
             case MaskType.Lightning:
 
-                WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, Vector2.zero, WeaponType.Lightning);
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                GameObject wpn3 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Lightning);
+                wpn3.GetComponent<WeaponController>().Owner = PlayerNumber;
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lightning);
                 break;
 
             case MaskType.Water:
 
-                WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Water);
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                GameObject wpn4 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Water);
+                wpn4.GetComponent<WeaponController>().Owner = PlayerNumber;
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.water);
                 break;
         }
     }
@@ -451,7 +477,7 @@ public class PlayerController : MonoBehaviour
 
         pAnimator.SetTrigger("MeleeAttack");
 
-        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleehit);
+        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleeswing);
 
         Collider[] hits = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 1.0f);
 
@@ -479,22 +505,22 @@ public class PlayerController : MonoBehaviour
         {
             case MaskType.Ice:
 
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.ice);
                 break;
 
             case MaskType.Metal:
 
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.metal);
                 break;
 
             case MaskType.Nature:
 
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.nature);
                 break;
 
             case MaskType.Wind:
 
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lasershot);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.wind);
                 break;
         }
     }

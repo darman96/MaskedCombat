@@ -184,6 +184,17 @@ public class GameManager : Singleton<GameManager>
                 Masks[7] = GameObject.Find("LightningMask");
             }
 
+            NumberOfPlayers = 0;
+
+            if (Player1.ResetAll())
+                NumberOfPlayers++;
+            if (Player2.ResetAll())
+                NumberOfPlayers++;
+            if (Player3.ResetAll())
+                NumberOfPlayers++;
+            if (Player4.ResetAll())
+                NumberOfPlayers++;
+
             PrepareNewRound();
 
             SetGameState(GameState.Playing);
@@ -320,16 +331,10 @@ public class GameManager : Singleton<GameManager>
 
     public void PrepareNewRound()
     {
-        NumberOfPlayers = 0;
-
-        if (Player1.ResetAll())
-            NumberOfPlayers++;
-        if (Player2.ResetAll())
-            NumberOfPlayers++;
-        if (Player3.ResetAll())
-            NumberOfPlayers++;
-        if (Player4.ResetAll())
-            NumberOfPlayers++;
+        Player1.ResetStartGame();
+        Player2.ResetStartGame();
+        Player3.ResetStartGame();
+        Player4.ResetStartGame();
 
         GiveOutMasks();
     }
