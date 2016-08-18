@@ -220,7 +220,34 @@ public class GameManager : Singleton<GameManager>
 
                 if (Time.time - startedRoundTimer > MaxRoundTime)
                 {
-                    Winner = 0;
+                    int P1Num = Player1.isActiveAndEnabled ? Player1.OwnedMasks.Count : 0;
+                    int P2Num = Player2.isActiveAndEnabled ? Player2.OwnedMasks.Count : 0;
+                    int P3Num = Player3.isActiveAndEnabled ? Player3.OwnedMasks.Count : 0;
+                    int P4Num = Player4.isActiveAndEnabled ? Player4.OwnedMasks.Count : 0;
+
+                    if (P1Num > P2Num && P1Num > P3Num && P1Num > P4Num)
+                    {
+                        Winner = 1;
+                        Player1.AddWin();
+                    }
+                    else if (P2Num > P1Num && P2Num > P3Num && P2Num > P4Num)
+                    {
+                        Winner = 2;
+                        Player2.AddWin();
+                    }
+                    else if (P3Num > P1Num && P3Num > P2Num && P3Num > P4Num)
+                    {
+                        Winner = 3;
+                        Player3.AddWin();
+                    }
+                    else if (P4Num > P1Num && P4Num > P2Num && P4Num > P3Num)
+                    {
+                        Winner = 4;
+                        Player4.AddWin();
+                    }
+                    else
+                        Winner = 0;
+
                     SetGameState(GameState.RoundPause);
                 }
 
@@ -435,7 +462,7 @@ public class GameManager : Singleton<GameManager>
         m.gameObject.SetActive(false);
         pc.OwnedMasks.Add(m.Type, m);
 
-        SoundManager.instance.Play(pc.transform.position, Quaternion.identity, SoundType.ding);
+        SoundManager.instance.Play(pc.transform.position, Quaternion.identity, SoundType.power_pickup);
 
         if (m.IsOffensive)
         {

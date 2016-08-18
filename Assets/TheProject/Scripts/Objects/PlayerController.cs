@@ -19,6 +19,10 @@ public class PlayerController : MonoBehaviour
     public float AttackDelayOff = 0.5f;
     public float AttackDelayDef = 0.5f;
     public float AttackDelayHit = 0.5f;
+    public float WindActivationPeriod = 2f;
+    public float IceActivationPeriod = 2f;
+    public float NatureActivationPeriod = 2f;
+    public float MetalActivationPeriod = 2f;
     public float JumpDelay = 1.0f;
     public float RunSpeed = 6f;
     public float TurnSpeed = 5f;
@@ -29,6 +33,7 @@ public class PlayerController : MonoBehaviour
     public float deadzone = 0.5f;
     public GameObject StunnedEffect;
     public GameObject InvulnerableEffect;
+    public GameObject PlayerMesh;
 
     [HideInInspector]
     public Dictionary<MaskType, Mask> OwnedMasks = new Dictionary<MaskType, Mask>();
@@ -50,8 +55,12 @@ public class PlayerController : MonoBehaviour
     private Rigidbody pRigidbody;
     private Vector3 ResultingSpeed;
     private bool IsInvulnerable;
+    private bool IsShieldedFromRanged;
+    private bool IsProtectedFromMelee;
     private bool IsStunned;
     private bool IsJumping;
+    private float DefensiveUntilTime;
+    private MaskType DefensiveActivated;
 
     private int _Score;
     public int Score
@@ -131,16 +140,41 @@ public class PlayerController : MonoBehaviour
         if (GameManager.instance == null || GameManager.instance.GameState != GameState.Playing)
             return;
 
+        if (Time.time > DefensiveUntilTime)
+        {
+            DefensiveActivated = MaskType.NONE;
+            PlayerMesh.SetActive(true);
+            IsShieldedFromRanged = false;
+            IsProtectedFromMelee = false;
+        }
+        else
+        {
+            if (DefensiveActivated == MaskType.Nature)
+            {
+                PlayerMesh.SetActive(false);
+            }
+            else if (DefensiveActivated == MaskType.Ice)
+            {
+                IsShieldedFromRanged = true;
+            }
+            else if (DefensiveActivated == MaskType.Metal)
+            {
+                IsProtectedFromMelee = true;
+            }
+        }
+
         // scale character while jumping
-        if (transform.position.y > 0)
+            if (transform.position.y > 0.2f)
         {
             float scale = Mathf.Clamp(1 + transform.position.y, 1, 1.5f);
             transform.localScale = new Vector3(scale, scale, scale);
+            IsJumping = true;
         }
         else
         { 
             // reset scale when not in air
             transform.localScale = Vector3.one;
+            IsJumping = false;
         }
 
         if (Time.time - DeadTime < StunnedTime)
@@ -308,10 +342,22 @@ public class PlayerController : MonoBehaviour
 
     public void OnWasHitMelee()
     {
-        if (IsInvulnerable)
+        if (IsInvulnerable || IsProtectedFromMelee)
             return;
 
-        SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.explosion);
+        switch (Random.Range(0, 3))
+        {
+            case 0:
+                SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.hit1);
+                break;
+            case 1:
+                SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.hit2);
+                break;
+            case 2:
+                SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.hit3);
+                break;
+        }
+
         ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, Quaternion.identity, Vector2.zero, EffectType.Explosion);
 
         if (OwnedMasks.Count > 0)
@@ -341,10 +387,22 @@ public class PlayerController : MonoBehaviour
 
     public void OnWasHitOff()
     {
-        if (IsInvulnerable)
+        if (IsInvulnerable || IsShieldedFromRanged)
             return;
 
-        SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.hit);
+        switch (Random.Range(0, 3))
+        {
+            case 0:
+                SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.hitoff1);
+                break;
+            case 1:
+                SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.hitoff2);
+                break;
+            case 2:
+                SoundManager.instance.Play(transform.position, Quaternion.identity, SoundType.hitoff3);
+                break;
+        }
+
         ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, Quaternion.identity, Vector2.zero, EffectType.Lightning);
 
         EnteredDizzyTime = Time.time;
@@ -367,11 +425,7 @@ public class PlayerController : MonoBehaviour
         }
 
         bool Found = false;
-<<<<<<< HEAD
         MaskType ToSearch = ActiveMask_Offensive;
-=======
-        MaskType toSearch = ActiveMask_Offensive;
->>>>>>> ab60db4df25260a396f0bae5cd42490da8707fd0
         ActiveMask_Offensive = MaskType.NONE;
 
         foreach (KeyValuePair<MaskType, Mask> m in OffMasks)
@@ -382,11 +436,7 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
-<<<<<<< HEAD
             if (m.Key == ToSearch)
-=======
-            if (m.Key == toSearch)
->>>>>>> ab60db4df25260a396f0bae5cd42490da8707fd0
                 Found = true;
         }
 
@@ -413,11 +463,7 @@ public class PlayerController : MonoBehaviour
         }
 
         bool Found = false;
-<<<<<<< HEAD
         MaskType ToSearch = ActiveMask_Defensive;
-=======
-        MaskType toSearch = ActiveMask_Defensive;
->>>>>>> ab60db4df25260a396f0bae5cd42490da8707fd0
         ActiveMask_Defensive = MaskType.NONE;
 
         foreach (KeyValuePair<MaskType, Mask> m in DefMasks)
@@ -428,11 +474,7 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
-<<<<<<< HEAD
             if (m.Key == ToSearch)
-=======
-            if (m.Key == toSearch)
->>>>>>> ab60db4df25260a396f0bae5cd42490da8707fd0
                 Found = true;
         }
 
@@ -444,7 +486,7 @@ public class PlayerController : MonoBehaviour
 
     void Move()
     {
-        ResultingSpeed = new Vector3 (leftstick.x, 0, leftstick.y).normalized * RunSpeed;
+        ResultingSpeed = new Vector3 (leftstick.x, 0, leftstick.y).normalized * RunSpeed * (DefensiveActivated == MaskType.Wind ? 3f : 1.0f);
 
         //Debug.Log("Stick: " + leftstick);
         //Debug.Log("Speed: " + ResultingSpeed);
@@ -469,8 +511,7 @@ public class PlayerController : MonoBehaviour
     void Jump()
     {
         pRigidbody.AddForce(Vector3.up * JumpHeight * 40, ForceMode.Impulse);
-        Debug.Log("Jump!");
-
+        //Debug.Log("Jump!");
         
         LastJump = Time.time;
     }
@@ -481,34 +522,62 @@ public class PlayerController : MonoBehaviour
 
         pAnimator.SetTrigger("DefAttack");
 
+        float roty = transform.rotation.eulerAngles.y % 360;
+        float targetroty = 0;
+
+        if (roty > 22.5f && roty < 67.5f)
+            targetroty = 45f;
+        else if (roty >= 67.5f && roty < 112.5f)
+            targetroty = 90f;
+        else if (roty >= 112.5f && roty < 157.5f)
+            targetroty = 135f;
+        else if (roty >= 157.5f && roty < 202.5f)
+            targetroty = 180f;
+        else if (roty >= 202.5f && roty < 247.5f)
+            targetroty = 225f;
+        else if (roty >= 247.5f && roty < 292.5f)
+            targetroty = 270f;
+        else if (roty >= 292.5f && roty < 337.5f)
+            targetroty = 315f;
+        else
+            targetroty = 0f;
+
+        Quaternion CardinalRotation = Quaternion.Euler (0, targetroty, 0);
+
+        //Debug.Log(targetroty);
+
         switch (ActiveMask_Offensive)
         {
+            // Cone forward 4 units = short stun + short slow
             case MaskType.Fire:
 
-                GameObject wpn = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Fireball);
+                GameObject wpn = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Fireball);
                 wpn.GetComponent<WeaponController>().Owner = PlayerNumber;
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.fire);
                 break;
 
+            // SphereRaycast pull towards 5 units
             case MaskType.Earth:
 
-                GameObject wpn2 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Earth);
+                GameObject wpn2 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Earth);
                 wpn2.GetComponent<WeaponController>().Owner = PlayerNumber;
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.earth);
                 break;
 
+            // Line Raycast hit = long stun
             case MaskType.Lightning:
 
-                GameObject wpn3 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Lightning);
+                GameObject wpn3 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Lightning);
                 wpn3.GetComponent<WeaponController>().Owner = PlayerNumber;
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lightning);
                 break;
 
+            // SphereRaycast pushback 3 units + long slow
             case MaskType.Water:
 
-                GameObject wpn4 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, transform.forward * 15, WeaponType.Water);
+                GameObject wpn4 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Water);
                 wpn4.GetComponent<WeaponController>().Owner = PlayerNumber;
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.water);
                 break;
@@ -523,7 +592,7 @@ public class PlayerController : MonoBehaviour
 
         SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleeswing);
 
-        Collider[] hits = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 1.0f);
+        Collider[] hits = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 1.5f);
 
         foreach (Collider col in hits)
         {
@@ -545,26 +614,40 @@ public class PlayerController : MonoBehaviour
 
         pAnimator.SetTrigger("DefAttack");
 
+        DefensiveActivated = ActiveMask_Defensive;
+
         switch (ActiveMask_Defensive)
         {
+            // Blocking Object behind
             case MaskType.Ice:
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.ice);
-                break;
+                DefensiveUntilTime = Time.time + IceActivationPeriod;
 
+                break;
+            
+            // Invulnerability
             case MaskType.Metal:
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.metal);
+                DefensiveUntilTime = Time.time + MetalActivationPeriod;
+
                 break;
 
+            // Invisible
             case MaskType.Nature:
 
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.nature);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.invisible);
+                DefensiveUntilTime = Time.time + NatureActivationPeriod;
+
                 break;
 
+            // Speed
             case MaskType.Wind:
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.wind);
+                DefensiveUntilTime = Time.time + WindActivationPeriod;
+
                 break;
         }
     }
