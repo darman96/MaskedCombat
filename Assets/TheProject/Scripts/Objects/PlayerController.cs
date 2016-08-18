@@ -51,6 +51,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 ResultingSpeed;
     private bool IsInvulnerable;
     private bool IsStunned;
+    private bool IsJumping;
 
     private int _Score;
     public int Score
@@ -129,6 +130,18 @@ public class PlayerController : MonoBehaviour
     {
         if (GameManager.instance == null || GameManager.instance.GameState != GameState.Playing)
             return;
+
+        // scale character while jumping
+        if (transform.position.y > 0)
+        {
+            float scale = Mathf.Clamp(1 + transform.position.y, 1, 1.5f);
+            transform.localScale = new Vector3(scale, scale, scale);
+        }
+        else
+        { 
+            // reset scale when not in air
+            transform.localScale = Vector3.one;
+        }
 
         if (Time.time - DeadTime < StunnedTime)
         {
@@ -354,7 +367,11 @@ public class PlayerController : MonoBehaviour
         }
 
         bool Found = false;
+<<<<<<< HEAD
         MaskType ToSearch = ActiveMask_Offensive;
+=======
+        MaskType toSearch = ActiveMask_Offensive;
+>>>>>>> ab60db4df25260a396f0bae5cd42490da8707fd0
         ActiveMask_Offensive = MaskType.NONE;
 
         foreach (KeyValuePair<MaskType, Mask> m in OffMasks)
@@ -365,7 +382,11 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
+<<<<<<< HEAD
             if (m.Key == ToSearch)
+=======
+            if (m.Key == toSearch)
+>>>>>>> ab60db4df25260a396f0bae5cd42490da8707fd0
                 Found = true;
         }
 
@@ -392,7 +413,11 @@ public class PlayerController : MonoBehaviour
         }
 
         bool Found = false;
+<<<<<<< HEAD
         MaskType ToSearch = ActiveMask_Defensive;
+=======
+        MaskType toSearch = ActiveMask_Defensive;
+>>>>>>> ab60db4df25260a396f0bae5cd42490da8707fd0
         ActiveMask_Defensive = MaskType.NONE;
 
         foreach (KeyValuePair<MaskType, Mask> m in DefMasks)
@@ -403,7 +428,11 @@ public class PlayerController : MonoBehaviour
                 break;
             }
 
+<<<<<<< HEAD
             if (m.Key == ToSearch)
+=======
+            if (m.Key == toSearch)
+>>>>>>> ab60db4df25260a396f0bae5cd42490da8707fd0
                 Found = true;
         }
 
@@ -425,8 +454,10 @@ public class PlayerController : MonoBehaviour
         //else
         //    SoundManager.instance.Stop("P1Walk");
 
+        ResultingSpeed.y = pRigidbody.velocity.y;
         pRigidbody.velocity = ResultingSpeed;
 
+        ResultingSpeed.y = 0;
         if (ResultingSpeed.sqrMagnitude > 1f)
             transform.rotation = Quaternion.LookRotation(ResultingSpeed, Vector3.up);
 
@@ -437,6 +468,10 @@ public class PlayerController : MonoBehaviour
 
     void Jump()
     {
+        pRigidbody.AddForce(Vector3.up * JumpHeight * 40, ForceMode.Impulse);
+        Debug.Log("Jump!");
+
+        
         LastJump = Time.time;
     }
 
