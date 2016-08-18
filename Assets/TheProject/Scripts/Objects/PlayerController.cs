@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
     public float StunnedTime = 2.0f;
     public float InvulnerableTime = 4.0f;
     public float deadzone = 0.5f;
+    public GameObject StunnedEffect;
+    public GameObject InvulnerableEffect;
 
     [HideInInspector]
     public Dictionary<MaskType, Mask> OwnedMasks = new Dictionary<MaskType, Mask>();
@@ -38,7 +40,7 @@ public class PlayerController : MonoBehaviour
     private float LastDefensive;
     private float LastHit;
     private float LastJump;
-    private float DeadTime;
+    private float DeadTime = -10;
     private int Joystick;
     private Vector2 leftstick;
     private Vector2 rightstick;
@@ -84,6 +86,22 @@ public class PlayerController : MonoBehaviour
 
         ResetStartGame();
 
+        switch (PlayerNumber)
+        {
+            case 1:
+                Joystick = GameManager.instance.InputPlayer1;
+                break;
+            case 2:
+                Joystick = GameManager.instance.InputPlayer2;
+                break;
+            case 3:
+                Joystick = GameManager.instance.InputPlayer3;
+                break;
+            case 4:
+                Joystick = GameManager.instance.InputPlayer4;
+                break;
+        }
+
         if (Joystick < 0)
         {
             gameObject.SetActive(false);
@@ -103,22 +121,6 @@ public class PlayerController : MonoBehaviour
     {
         pAnimator = GetComponent<Animator>();
         pRigidbody = GetComponent<Rigidbody>();
-
-        switch (PlayerNumber)
-        {
-            case 1:
-                Joystick = GameManager.instance.InputPlayer1;
-                break;
-            case 2:
-                Joystick = GameManager.instance.InputPlayer2;
-                break;
-            case 3:
-                Joystick = GameManager.instance.InputPlayer3;
-                break;
-            case 4:
-                Joystick = GameManager.instance.InputPlayer4;
-                break;
-        }
     }
 
     private void Update()
@@ -130,20 +132,25 @@ public class PlayerController : MonoBehaviour
         {
             IsStunned = true;
             IsInvulnerable = true;
+            pRigidbody.velocity = Vector3.zero;
+            StunnedEffect.SetActive(true);
 
             return;
         }
 
         IsStunned = false;
+        StunnedEffect.SetActive(false);
 
         if (Time.time - DeadTime < InvulnerableTime)
         {
             IsInvulnerable = true;
+            InvulnerableEffect.SetActive(true);
 
             return;
         }
 
         IsInvulnerable = false;
+        InvulnerableEffect.SetActive(false);
 
         if (Joystick == -1)
             return;
@@ -242,15 +249,9 @@ public class PlayerController : MonoBehaviour
 
     void UpdateAnimator()
     {
-        return;
-
         pAnimator.SetFloat("Forward", ResultingSpeed.magnitude, 0.01f, Time.deltaTime);
-        //pAnimator.SetFloat("Turn", ResultingTorque / TurnSpeed, 0.01f, Time.deltaTime);
         pAnimator.SetBool("IsStunned", IsStunned);
         pAnimator.SetBool("IsInvulnerable", IsInvulnerable);
-        pAnimator.SetTrigger("MeleeAttack");
-        pAnimator.SetTrigger("OffAttack");
-        pAnimator.SetTrigger("DefAttack");
     }
 
     void OnTriggerEnter(Collider other)
@@ -414,6 +415,8 @@ public class PlayerController : MonoBehaviour
     {
         LastOffensive = Time.time;
 
+        pAnimator.SetTrigger("DefAttack");
+
         switch (ActiveMask_Offensive)
         {
             case MaskType.Fire:
@@ -446,9 +449,9 @@ public class PlayerController : MonoBehaviour
     {
         LastHit = Time.time;
 
-        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleeswing);
+        pAnimator.SetTrigger("MeleeAttack");
 
-        WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, transform.rotation, Vector2.zero, WeaponType.Lightning);
+        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleehit);
 
         Collider[] hits = Physics.OverlapSphere(transform.position + transform.up + transform.forward, 1.0f);
 
@@ -469,6 +472,8 @@ public class PlayerController : MonoBehaviour
     private void ActivateDefensive()
     {
         LastDefensive = Time.time;
+
+        pAnimator.SetTrigger("DefAttack");
 
         switch (ActiveMask_Defensive)
         {

@@ -62,8 +62,27 @@ ModelImporter:
     optimizeGameObjects: 0
     motionNodeName: 
     animationImportErrors: 
-    animationImportWarnings: 
-    animationRetargetingWarnings: 
+    animationImportWarnings: "\nClip 'Take 001' has import animation warnings that
+      might lower retargeting quality:\nNote: Activate translation DOF on avatar to
+      improve retargeting quality.\n\t'pelvis_jt' has translation animation that will
+      be discarded.\n\t'spine_jt' has translation animation that will be discarded.\n"
+    animationRetargetingWarnings: "\nRetargeting quality report for clip 'Take 001':\n\tLeftLowerLeg
+      average position error 41.5 mm and maximum position error 84.3 mm at time 1:
+      2 (43.3%) Frame 26\n\tLeftFoot average position error 41.5 mm and maximum position
+      error 84.3 mm at time 1: 2 (43.3%) Frame 26\n\tRightLowerLeg average position
+      error 41.5 mm and maximum position error 84.3 mm at time 1: 2 (43.3%) Frame
+      26\n\tRightFoot average position error 41.5 mm and maximum position error 84.3
+      mm at time 1: 2 (43.3%) Frame 26\n\tLeftUpperArm average position error 41.9
+      mm and maximum position error 85.1 mm at time 1: 2 (43.3%) Frame 26\n\tLeftLowerArm
+      average position error 41.8 mm and maximum position error 85.0 mm at time 1:
+      2 (43.3%) Frame 26\n\tLeftHand average position error 41.9 mm and maximum position
+      error 85.1 mm at time 1: 2 (43.3%) Frame 26\n\tRightUpperArm average position
+      error 41.9 mm and maximum position error 85.1 mm at time 1: 2 (43.3%) Frame
+      26\n\tRightLowerArm average position error 41.8 mm and maximum position error
+      85.1 mm at time 1: 2 (43.3%) Frame 26\n\tRightHand average position error 41.9
+      mm and maximum position error 85.1 mm at time 1: 2 (43.3%) Frame 26\n\tHead
+      average position error 41.9 mm and maximum position error 85.1 mm at time 1:
+      2 (43.3%) Frame 26\n"
     animationDoRetargetingWarnings: 1
     animationCompression: 3
     animationRotationError: 0.5
@@ -76,7 +95,7 @@ ModelImporter:
       name: Take 001
       takeName: Take 001
       firstFrame: 1
-      lastFrame: 100
+      lastFrame: 60
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -89,9 +108,9 @@ ModelImporter:
       loopBlendPositionY: 0
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
+      keepOriginalPositionY: 0
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 1
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
@@ -315,7 +334,7 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: SMesh_MainChar(Clone)
+    - name: SMesh_MainChar_new(Clone)
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
@@ -331,103 +350,103 @@ ModelImporter:
       scale: {x: 1, y: 1, z: 1}
       transformModified: 1
     - name: pelvis_jt
-      position: {x: -0.0038681184, y: 8.5960066e-19, z: -0.0003355013}
-      rotation: {x: -2.1794367e-16, y: 4.8218373e-32, z: -4.247778e-17, w: 1}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: left_thigh_jt
-      position: {x: 0.0002522136, y: 0.00077868043, z: 0.0003355013}
-      rotation: {x: -0.04180221, y: 0.9973222, z: -0.060005523, w: 0.0006152869}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: left_calv_jt
-      position: {x: -0.0017425857, y: 0.0000011295778, z: 0.00021509327}
-      rotation: {x: 0.9962587, y: 0.08642121, z: 0.0000000121768835, w: 7.899381e-10}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: left_ankle_jt
-      position: {x: -0.001388599, y: -0.00012536945, z: 0.000470552}
-      rotation: {x: 0.7429392, y: 0.6666637, z: -0.033382386, w: 0.049866393}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: left_ball_jt
-      position: {x: -0.00005063086, y: -0.0003521202, z: 0.0011643104}
-      rotation: {x: 0.098537624, y: 0.99513334, z: -7.053563e-10, w: -1.1026246e-10}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: left_toe_jt
-      position: {x: -0.00017728074, y: -0.000010003705, z: -0.0007995575}
-      rotation: {x: 0, y: -0, z: -0, w: 1}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: right_thigh_jt
-      position: {x: 0.00025220864, y: -0.00077867997, z: 0.0003355013}
-      rotation: {x: 0.05995125, y: -0.00061473675, z: -0.041806795, w: 0.99732524}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: right_calv_jt
-      position: {x: 0.00174259, y: -0.0000011292083, z: -0.00021509301}
-      rotation: {x: 0.9962587, y: 0.0864212, z: -2.9556302e-15, w: -2.508309e-16}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: right_ankle_jt
-      position: {x: 0.0013885997, y: 0.00012537008, z: -0.00047055198}
-      rotation: {x: 0.74294454, y: 0.6666626, z: -0.03335219, w: 0.04982129}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: right_ball_jt
-      position: {x: 0.00005063071, y: 0.00035212043, z: -0.001164311}
-      rotation: {x: 0.098537624, y: 0.99513334, z: -8.2554436e-10, w: -1.2905178e-10}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: right_toe_jt
-      position: {x: 0.00017728099, y: 0.000010004001, z: 0.000799558}
-      rotation: {x: 0, y: -0, z: -0, w: 1}
+      position: {x: -0.38681185, y: 8.5960067e-17, z: -0.033550132}
+      rotation: {x: 6.123234e-17, y: 6.123234e-17, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
       transformModified: 1
     - name: spine_jt
-      position: {x: -0.0019952864, y: 4.414419e-19, z: -0.00038888643}
-      rotation: {x: 6.123234e-17, y: 6.123234e-17, z: 0, w: 1}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: left_upperArm_jt
-      position: {x: -0.0017999785, y: 0.001701256, z: 0.00069847313}
-      rotation: {x: -0.6818089, y: 0.73006636, z: -0.034490306, w: 0.030824881}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: left_lowerArm_jt
-      position: {x: -0.003226276, y: -0.000031376578, z: -0.000120703175}
-      rotation: {x: -0.0012352985, y: -0.023866301, z: -0.023783797, w: 0.9994315}
-      scale: {x: 1, y: 1, z: 1}
-      transformModified: 1
-    - name: left_hand_jt
-      position: {x: -0.0030002021, y: -0.000045103247, z: 0.0003372435}
-      rotation: {x: 0.025506994, y: 0.9996747, z: 6.277428e-17, w: -5.9650575e-17}
+      position: {x: -0.19952865, y: 4.4144187e-17, z: -0.038888644}
+      rotation: {x: -0.009479146, y: 0.009291061, z: -0.0017977979, w: 0.9999103}
       scale: {x: 1, y: 1, z: 1}
       transformModified: 1
     - name: neck_jt
-      position: {x: -0.0033427584, y: 7.4224147e-19, z: 0.000870501}
-      rotation: {x: 0, y: -0, z: -0, w: 1}
+      position: {x: -0.3342758, y: 7.507883e-17, z: 0.0870501}
+      rotation: {x: 0.018892739, y: -0.0027519946, z: 0.016356567, w: 0.9996839}
       scale: {x: 1, y: 1, z: 1}
       transformModified: 1
     - name: head_jt
-      position: {x: -0.0009766634, y: 2.1686285e-19, z: -0.0000047699027}
-      rotation: {x: 6.123234e-17, y: 6.123234e-17, z: 0, w: 1}
+      position: {x: -0.09766634, y: 1.3322676e-17, z: -0.0004769903}
+      rotation: {x: 0, y: 0.00005976401, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
       transformModified: 1
     - name: right_upperArm_jt
-      position: {x: -0.0017999748, y: -0.00170126, z: 0.00069847313}
-      rotation: {x: 0.034482755, y: -0.030818097, z: -0.68180877, w: 0.7300672}
+      position: {x: -0.17999747, y: -0.17012599, z: 0.069847316}
+      rotation: {x: 0.04048142, y: -0.023246756, z: -0.68005687, w: 0.7316717}
       scale: {x: 1, y: 1, z: 1}
       transformModified: 1
     - name: right_lowerArm_jt
-      position: {x: 0.003226273, y: 0.000031369123, z: 0.0001207032}
-      rotation: {x: -0.0012353114, y: -0.023865534, z: -0.023783939, w: 0.9994315}
+      position: {x: 0.32262728, y: 0.0031369121, z: 0.01207032}
+      rotation: {x: -0.00092112995, y: -0.02954683, z: -0.022365816, w: 0.99931276}
       scale: {x: 1, y: 1, z: 1}
       transformModified: 1
     - name: right_hand_jt
-      position: {x: 0.0030002042, y: 0.00004510612, z: -0.0003372436}
+      position: {x: 0.30002043, y: 0.004510612, z: -0.03372436}
       rotation: {x: 0.025506994, y: 0.9996747, z: 0.00000001053329, w: 2.6876e-10}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: left_upperArm_jt
+      position: {x: -0.17999786, y: 0.17012559, z: 0.06984731}
+      rotation: {x: -0.680052, y: 0.7316756, z: -0.040489405, w: 0.023253372}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: left_lowerArm_jt
+      position: {x: -0.3226276, y: -0.003137658, z: -0.012070318}
+      rotation: {x: -0.001305621, y: -0.039086483, z: -0.026452746, w: 0.9988848}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: left_hand_jt
+      position: {x: -0.30002022, y: -0.0045103244, z: 0.03372435}
+      rotation: {x: 0.025506994, y: 0.9996747, z: 6.277428e-17, w: -5.9650575e-17}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: right_thigh_jt
+      position: {x: 0.025220864, y: -0.077868, z: 0.033550132}
+      rotation: {x: 0.060753454, y: -0.0140253855, z: -0.041507192, w: 0.99719083}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: right_calv_jt
+      position: {x: 0.174259, y: -0.00011292083, z: -0.021509299}
+      rotation: {x: 0.9959063, y: 0.08911396, z: 0.015114792, w: 0.00093866355}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: right_ankle_jt
+      position: {x: 0.13885997, y: 0.012537007, z: -0.0470552}
+      rotation: {x: 0.7422643, y: 0.66735774, z: -0.024916148, w: 0.055286884}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: right_ball_jt
+      position: {x: 0.005063071, y: 0.035212044, z: -0.1164311}
+      rotation: {x: 0.09853762, y: 0.99513334, z: 6.696803e-17, w: -5.4900652e-17}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: right_toe_jt
+      position: {x: 0.0177281, y: 0.0010004, z: 0.0799558}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: left_thigh_jt
+      position: {x: 0.025221359, y: 0.077868044, z: 0.033550132}
+      rotation: {x: -0.04150115, y: 0.99718773, z: -0.060807694, w: 0.014025906}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: left_calv_jt
+      position: {x: -0.17425857, y: 0.00011295777, z: 0.021509327}
+      rotation: {x: 0.9959063, y: 0.08911397, z: 0.015114778, w: 0.0009386623}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: left_ankle_jt
+      position: {x: -0.13885991, y: -0.012536945, z: 0.0470552}
+      rotation: {x: 0.7422591, y: 0.6673586, z: -0.024946287, w: 0.05533211}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: left_ball_jt
+      position: {x: -0.005063086, y: -0.03521202, z: 0.116431035}
+      rotation: {x: 0.09853763, y: 0.99513334, z: 6.696803e-17, w: -5.4900652e-17}
+      scale: {x: 1, y: 1, z: 1}
+      transformModified: 1
+    - name: left_toe_jt
+      position: {x: -0.017728075, y: -0.0010003705, z: -0.07995575}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
       transformModified: 1
     armTwist: 0.5
@@ -439,7 +458,7 @@ ModelImporter:
     feetSpacing: 0
     rootMotionBoneName: 
     hasTranslationDoF: 0
-  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: d80ddd34699601241825d0f582859962,
+  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: 2e47f20455c926d4c92d7533a49cd312,
     type: 3}
   animationType: 3
   humanoidOversampling: 1

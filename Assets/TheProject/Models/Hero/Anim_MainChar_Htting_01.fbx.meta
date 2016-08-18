@@ -62,7 +62,18 @@ ModelImporter:
     optimizeGameObjects: 0
     motionNodeName: 
     animationImportErrors: 
-    animationImportWarnings: 
+    animationImportWarnings: "\nDefault bone length found in this file is different
+      form the one found in the source avatar:\n\t'left_thigh_jt' : position error
+      = 16664.375000 mm\n\t'left_calv_jt' : position error = 33076.542969 mm\n\t'left_ankle_jt'
+      : position error = 27720.808594 mm\n\t'left_ball_jt' : position error = 22934.619141
+      mm\n\t'left_toe_jt' : position error = 15429.279297 mm\n\nClip 'Take 001' has
+      import animation warnings that might lower retargeting quality:\nNote: Activate
+      translation DOF on avatar to improve retargeting quality.\n\t'pelvis_jt' has
+      translation animation that will be discarded.\n\t'pelvis_jt' is inbetween humanoid
+      transforms and has rotation animation that will be discarded.\n\t'spine_jt'
+      has translation animation that will be discarded.\n\t'right_ball_jt' is inbetween
+      humanoid transforms and has rotation animation that will be discarded.\n\t'left_ball_jt'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n"
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     animationCompression: 3
@@ -71,7 +82,79 @@ ModelImporter:
     animationScaleError: 0.5
     animationWrapMode: 0
     extraExposedTransformPaths: []
-    clipAnimations: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Take 001
+      takeName: Take 001
+      firstFrame: 8
+      lastFrame: 35
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: -0.95
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 0
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 1
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: root_jt
+        weight: 1
+      - path: root_jt/pelvis_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt/left_calv_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt/left_calv_jt/left_ankle_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt/left_calv_jt/left_ankle_jt/left_ball_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/left_thigh_jt/left_calv_jt/left_ankle_jt/left_ball_jt/left_toe_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt/right_calv_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt/right_calv_jt/right_ankle_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt/right_calv_jt/right_ankle_jt/right_ball_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/right_thigh_jt/right_calv_jt/right_ankle_jt/right_ball_jt/right_toe_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/left_upperArm_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/left_upperArm_jt/left_lowerArm_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/left_upperArm_jt/left_lowerArm_jt/left_hand_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/neck_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/neck_jt/head_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/right_upperArm_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/right_upperArm_jt/right_lowerArm_jt
+        weight: 1
+      - path: root_jt/pelvis_jt/spine_jt/right_upperArm_jt/right_lowerArm_jt/right_hand_jt
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
     isReadable: 1
   meshes:
     lODScreenPercentages: []
