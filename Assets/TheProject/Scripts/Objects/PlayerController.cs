@@ -35,7 +35,7 @@ public class PlayerController : MonoBehaviour
     public float InvulnerableToStuns = 1.0f;
     public float InvulnerableToSlows = 0.5f;
 
-    public float IceSlowsTime = 3;
+    public float IceSlowsTime = 3.0f;
     public float IceSlowsAmount = 0.1f;
     public float IceSlowRadius = 5.0f;
 
@@ -185,6 +185,9 @@ public class PlayerController : MonoBehaviour
         if (GameManager.instance == null || GameManager.instance.GameState != GameState.Playing)
             return;
 
+        if (Joystick == -1)
+            return;
+
         UpdateMasks();
 
         IsInvulnerableMelee = false;
@@ -243,7 +246,6 @@ public class PlayerController : MonoBehaviour
         if (Time.time < StunnedUntilTime)
         {
             IsStunned = true;
-            pRigidbody.velocity = new Vector3(0, pRigidbody.velocity.y, 0);
             StunnedEffect.SetActive(true);
         }
 
@@ -270,8 +272,6 @@ public class PlayerController : MonoBehaviour
         if (!IsInvulnerable)
             InvulnerableEffect.SetActive(false);
 
-        if (Joystick == -1 || IsStunned)
-            return;
 
         float deltaJump = Time.time - LastJump;
         float deltaAttack = Mathf.Min (Time.time - LastOffensive, Time.time - LastHit);
@@ -346,12 +346,6 @@ public class PlayerController : MonoBehaviour
                 rightstick = Vector2.zero;
             //else
             //    rightstick = rightstick.normalized * ((rightstick.magnitude - deadzone) / (1 - deadzone));
-        }
-
-        if (IsSlowed)
-        {
-            leftstick *= SlowedAmount;
-            rightstick *= SlowedAmount;
         }
     }
 
@@ -709,11 +703,18 @@ public class PlayerController : MonoBehaviour
 
     void Move()
     {
-        ResultingSpeed = new Vector3 (leftstick.x, 0, leftstick.y).normalized * RunSpeed * (DefensiveActivated == MaskType.Wind ? 3.0f : 1.0f);
+        float SpeedScale = 1.0f;
+
+        if (IsStunned)
+            SpeedScale = 0;
+        else if (IsSlowed)
+            SpeedScale = SlowedAmount;
+
+        ResultingSpeed = new Vector3 (leftstick.x, 0, leftstick.y).normalized * RunSpeed * SpeedScale * (DefensiveActivated == MaskType.Wind ? 3.0f : 1.0f);
 
         if (GameManager.instance == null || GameManager.instance.GameState != GameState.Playing || IsStunned)
         {
-            pRigidbody.velocity = Vector2.zero;
+            ResultingSpeed = Vector2.zero;
         }
 
         ResultingSpeed += ForcePushPull;
@@ -818,7 +819,7 @@ public class PlayerController : MonoBehaviour
 
                 ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, CardinalRotation, Vector3.zero, EffectType.Lightning);
 
-                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lightning);
+                SoundManager.instance.Play(transform.position, transform.rotation, SoundType.electric);
 
                 RaycastHit[] hits2 = Physics.SphereCastAll(transform.position, 2.5f, CardinalRotation * Vector3.forward, 10f, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
 
@@ -865,7 +866,7 @@ public class PlayerController : MonoBehaviour
 
         pAnimator.SetTrigger("MeleeAttack");
 
-        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleeswing);
+        SoundManager.instance.Play(transform.position, transform.rotation, SoundType.punch_attack);
 
         Collider[] hits = Physics.OverlapSphere(transform.position + transform.up, MeleeRange);
 

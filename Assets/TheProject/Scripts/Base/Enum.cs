@@ -50,6 +50,7 @@ public enum SoundType
     invisible,
     power_pickup,
     power_up,
+    punch_attack,
 
     lasershot,
     bulletshot,
