@@ -22,11 +22,7 @@ public enum PickupType
 
 public enum EffectType
 {
-    BloodSpray,
-    BloodSprayLarge,
-    BigBang,
     Explosion,
-    Electricity,
     OffHit,
     Earth,
     Water,

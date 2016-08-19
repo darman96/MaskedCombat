@@ -27,18 +27,34 @@ public class PlayerController : MonoBehaviour
     public float RunSpeed = 6f;
     public float TurnSpeed = 5f;
     public float JumpHeight = 12f;
+    public float MeleeRange = 2.5f;
+
     public float StunnedAfterMelee = 2.0f;
     public float InvulnerableAfterMelee = 5.0f;
     public float InvulnerableAfterOff = 1.0f;
+    public float InvulnerableToStuns = 1.0f;
+    public float InvulnerableToSlows = 0.5f;
+
     public float IceSlowsTime = 3;
-    public float IceSlowsAmount = 0.3f;
+    public float IceSlowsAmount = 0.1f;
+    public float IceSlowRadius = 5.0f;
+
     public float FireSlowsTime = 2.0f;
-    public float FireSlowsAmount = 0.6f;
-    public float WaterSlowsTime = 3;
-    public float WaterSlowsAmount = 0.5f;
-    public float FireStunsTime = 0.5f;
+    public float FireSlowsAmount = 0.5f;
+    public float FireStunsTime = 0.25f;
+
+    public float WaterSlowsTime = 3.0f;
+    public float WaterSlowsAmount = 0.2f;
+    public float WaterStunsTime = 0.5f;
+
+    public float LightningSlowsTime = 2.0f;
+    public float LightningSlowsAmount = 0.2f;
     public float LightningStunsTime = 1.0f;
+
+    public float EarthSlowsTime = 1.0f;
+    public float EarthSlowsAmount = 0.1f;
     public float EarthStunsTime = 0.5f;
+
     public float PullForce = 40f;
     public float PushForce = 20f;
 
@@ -77,12 +93,14 @@ public class PlayerController : MonoBehaviour
     private Rigidbody pRigidbody;
     private Vector3 ResultingSpeed;
 
+    private bool IsInvulnerableMelee;
     private bool IsInvulnerable;
     private bool IsStunned;
     private bool IsSlowed;
     private float SlowedAmount;
     private Vector3 ForcePushPull;
 
+    private float InvulnerableMeleeUntilTime = -10;
     private float InvulnerableUntilTime = -10;
     private float StunnedUntilTime = -10;
     private float SlowedUntilTime = -10;
@@ -169,6 +187,7 @@ public class PlayerController : MonoBehaviour
 
         UpdateMasks();
 
+        IsInvulnerableMelee = false;
         IsInvulnerable = false;
         IsStunned = false;
         IsSlowed = false;
@@ -206,6 +225,7 @@ public class PlayerController : MonoBehaviour
             else if (DefensiveActivated == MaskType.Metal)
             {
                 IsInvulnerable = true;
+                IsInvulnerableMelee = true;
             }
         }
 
@@ -225,6 +245,12 @@ public class PlayerController : MonoBehaviour
             IsStunned = true;
             pRigidbody.velocity = new Vector3(0, pRigidbody.velocity.y, 0);
             StunnedEffect.SetActive(true);
+        }
+
+        if (Time.time < InvulnerableMeleeUntilTime)
+        {
+            IsInvulnerableMelee = true;
+            InvulnerableEffect.SetActive(true);
         }
 
         if (Time.time < InvulnerableUntilTime)
@@ -309,13 +335,13 @@ public class PlayerController : MonoBehaviour
             }
 
             // Specifies the amount of movement
-            leftstick = new Vector2(Mathf.Clamp(Input.GetAxis("AxisX_P" + Joystick) + Input.GetAxis("KeyboardAxisX"), -1.0f, 1.0f), Mathf.Clamp(Input.GetAxis("AxisY_P" + Joystick) + Input.GetAxis("KeyboardAxisY"), -1.0f, 1.0f));
+            leftstick = new Vector2(Mathf.Clamp(Input.GetAxis("AxisX_P" + Joystick), -1.0f, 1.0f), Mathf.Clamp(Input.GetAxis("AxisY_P" + Joystick), -1.0f, 1.0f));
             if (leftstick.magnitude < deadzone)
                 leftstick = Vector2.zero;
             //else
             //    leftstick = leftstick.normalized * ((leftstick.magnitude - deadzone) / (1 - deadzone));
 
-            rightstick = new Vector2(Mathf.Clamp(Input.GetAxis("CamAxisX_P" + Joystick) + Input.GetAxis("MouseCamAxisX"), -1.0f, 1.0f), Mathf.Clamp(Input.GetAxis("CamAxisY_P" + Joystick) + Input.GetAxis("MouseCamAxisY"), -1.0f, 1.0f));
+            rightstick = new Vector2(Mathf.Clamp(Input.GetAxis("CamAxisX_P" + Joystick), -1.0f, 1.0f), Mathf.Clamp(Input.GetAxis("CamAxisY_P" + Joystick), -1.0f, 1.0f));
             if (rightstick.magnitude < deadzone)
                 rightstick = Vector2.zero;
             //else
@@ -331,21 +357,16 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (GameManager.instance == null || GameManager.instance.GameState != GameState.Playing)
-            return;
-
         UpdateAnimator();
 
-        if (IsStunned)
-            return;
-
         Move();
+
         //Debug.Log(AxisX.ToString("0.0") + " : " + AxisY.ToString("0.0") + (Jumping ? "JUMP " : " ") + (Crouching ? "CROUCH " : " ") + (IsGrounded ? "GROUNDED" : ""));
     }
 
     void UpdateAnimator()
     {
-        pAnimator.SetFloat("Forward", (IsStunned ? 0.0f : Mathf.Abs(leftstick.y)), 0.01f, Time.deltaTime);
+        pAnimator.SetFloat("Forward", ((IsStunned || GameManager.instance.GameState != GameState.Playing) ? 0.0f : leftstick.magnitude), 0.01f, Time.deltaTime);
         pAnimator.SetBool("IsStunned", IsStunned);
         pAnimator.SetBool("IsInvulnerable", IsInvulnerable);
     }
@@ -428,6 +449,19 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void OnTriggerStay(Collider other)
+    {
+        if (other.tag == "Mask")
+        {
+            Mask m = other.gameObject.GetComponent<Mask>();
+
+            if (m && m.CanBePickedUp)
+            {
+                GameManager.instance.PickupMask(m, this);
+            }
+        }
+    }
+
     void OnCollisionEnter(Collision col)
     {
         ForcePushPull = Vector3.zero;
@@ -448,7 +482,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnWasHitMelee()
     {
-        if (IsInvulnerable)
+        if (IsInvulnerableMelee)
             return;
 
         switch (Random.Range(0, 3))
@@ -490,6 +524,7 @@ public class PlayerController : MonoBehaviour
 
         StunnedUntilTime = Time.time + StunnedAfterMelee;
         InvulnerableUntilTime = Time.time + InvulnerableAfterMelee;
+        InvulnerableMeleeUntilTime = Time.time + InvulnerableAfterMelee;
     }
 
     public void OnWasHitOff(MaskType weapon, Vector3 from)
@@ -514,34 +549,48 @@ public class PlayerController : MonoBehaviour
 
         switch (weapon)
         {
+            // Defensive mask - mega area slow
             case MaskType.Ice:
 
-                if (Time.time > SlowedUntilTime + 2.5f)
+                if (Time.time > SlowedUntilTime + InvulnerableToSlows)
                 {
                     SlowedUntilTime = Time.time + IceSlowsTime;
                     SlowedAmount = IceSlowsAmount;
                 }
+
+                //if (Time.time > StunnedUntilTime + InvulnerableToStuns)
+                //    StunnedUntilTime = Time.time + IceStunsTime;
+
+                InvulnerableUntilTime = Time.time + InvulnerableAfterOff;
+
                 break;
 
             case MaskType.Fire:
 
-                if (Time.time > SlowedUntilTime + 2.5f)
+                if (Time.time > SlowedUntilTime + InvulnerableToSlows)
                 {
                     SlowedUntilTime = Time.time + FireSlowsTime;
                     SlowedAmount = FireSlowsAmount;
                 }
 
-                if (Time.time > StunnedUntilTime + 5f)
+                if (Time.time > StunnedUntilTime + InvulnerableToStuns)
                     StunnedUntilTime = Time.time + FireStunsTime;
 
                 InvulnerableUntilTime = Time.time + InvulnerableAfterOff;
+
                 break;
 
             case MaskType.Earth:
 
                 ForcePushPull = (from - transform.position).normalized * PullForce;
 
-                if (Time.time > StunnedUntilTime + 5f)
+                if (Time.time > SlowedUntilTime + InvulnerableToSlows)
+                {
+                    SlowedUntilTime = Time.time + EarthSlowsTime;
+                    SlowedAmount = EarthSlowsAmount;
+                }
+
+                if (Time.time > StunnedUntilTime + InvulnerableToStuns)
                     StunnedUntilTime = Time.time + EarthStunsTime;
 
                 InvulnerableUntilTime = Time.time + InvulnerableAfterOff;
@@ -552,17 +601,32 @@ public class PlayerController : MonoBehaviour
 
                 ForcePushPull = (transform.position - from).normalized * PushForce;
 
-                if (Time.time > SlowedUntilTime + 2.5f)
+                if (Time.time > SlowedUntilTime + InvulnerableToSlows)
                 {
                     SlowedUntilTime = Time.time + WaterSlowsTime;
                     SlowedAmount = WaterSlowsAmount;
                 }
+
+                if (Time.time > StunnedUntilTime + InvulnerableToStuns)
+                    StunnedUntilTime = Time.time + WaterStunsTime;
+
+                InvulnerableUntilTime = Time.time + InvulnerableAfterOff;
+
                 break;
 
             case MaskType.Lightning:
 
+                if (Time.time > SlowedUntilTime + InvulnerableToSlows)
+                {
+                    SlowedUntilTime = Time.time + LightningSlowsTime;
+                    SlowedAmount = LightningSlowsAmount;
+                }
+
                 if (Time.time > StunnedUntilTime + 5f)
                     StunnedUntilTime = Time.time + LightningStunsTime;
+
+                InvulnerableUntilTime = Time.time + InvulnerableAfterOff;
+
                 break;
         }
     }
@@ -645,7 +709,12 @@ public class PlayerController : MonoBehaviour
 
     void Move()
     {
-        ResultingSpeed = new Vector3 (leftstick.x, 0, leftstick.y).normalized * RunSpeed * (DefensiveActivated == MaskType.Wind ? 3f : 1.0f);
+        ResultingSpeed = new Vector3 (leftstick.x, 0, leftstick.y).normalized * RunSpeed * (DefensiveActivated == MaskType.Wind ? 3.0f : 1.0f);
+
+        if (GameManager.instance == null || GameManager.instance.GameState != GameState.Playing || IsStunned)
+        {
+            pRigidbody.velocity = Vector2.zero;
+        }
 
         ResultingSpeed += ForcePushPull;
 
@@ -798,7 +867,7 @@ public class PlayerController : MonoBehaviour
 
         SoundManager.instance.Play(transform.position, transform.rotation, SoundType.meleeswing);
 
-        Collider[] hits = Physics.OverlapSphere(transform.position + transform.up, 2.0f);
+        Collider[] hits = Physics.OverlapSphere(transform.position + transform.up, MeleeRange);
 
         foreach (Collider col in hits)
         {
@@ -843,7 +912,7 @@ public class PlayerController : MonoBehaviour
                 DefensiveUntilTime = Time.time + IceActivationPeriod;
                 IceMask.transform.localScale = new Vector3(3f, 3f, 3f);
 
-                Collider[] hits = Physics.OverlapSphere(transform.position, 3, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
+                Collider[] hits = Physics.OverlapSphere(transform.position, IceSlowRadius, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
 
                 foreach (Collider hit in hits)
                 {

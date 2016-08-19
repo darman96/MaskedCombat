@@ -459,9 +459,9 @@ public class GameManager : Singleton<GameManager>
     public void DropMask(Mask m, Vector3 position)
     {
         m.Owner = 0;
-        m.gameObject.transform.position = position + Vector3.up;
+        m.gameObject.transform.position = position;
         m.gameObject.SetActive(true);
-        m.gameObject.GetComponent<Rigidbody>().AddForce(new Vector3(0, 3, 0), ForceMode.Force);
+        m.gameObject.GetComponent<Rigidbody>().AddForce(new Vector3(Random.Range(-2f, 2f), 2f, Random.Range(-2f, 2f)).normalized * 2f, ForceMode.Impulse);
 
         SoundManager.instance.Play(position, Quaternion.identity, SoundType.power_up);
     }
