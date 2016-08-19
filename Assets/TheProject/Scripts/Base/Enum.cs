@@ -27,7 +27,10 @@ public enum EffectType
     BigBang,
     Explosion,
     Electricity,
-    Lightning
+    OffHit,
+    Earth,
+    Water,
+    Lightning,
 }
 
 public enum SoundType

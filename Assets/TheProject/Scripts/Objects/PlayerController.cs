@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviour
     public float WaterSlowsAmount = 0.5f;
     public float FireStunsTime = 0.5f;
     public float LightningStunsTime = 1.0f;
+    public float EarthStunsTime = 0.5f;
     public float PullForce = 40f;
     public float PushForce = 20f;
 
@@ -80,6 +81,7 @@ public class PlayerController : MonoBehaviour
     private bool IsStunned;
     private bool IsSlowed;
     private float SlowedAmount;
+    private Vector3 ForcePushPull;
 
     private float InvulnerableUntilTime = -10;
     private float StunnedUntilTime = -10;
@@ -428,6 +430,8 @@ public class PlayerController : MonoBehaviour
 
     void OnCollisionEnter(Collision col)
     {
+        ForcePushPull = Vector3.zero;
+
         if (IsInvulnerable)
         {
             return;
@@ -506,7 +510,7 @@ public class PlayerController : MonoBehaviour
                 break;
         }
 
-        ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, Quaternion.identity, Vector2.zero, EffectType.Lightning);
+        ParticleManager.instance.CreateEffect(transform.position + transform.up, Quaternion.identity, Vector2.zero, EffectType.OffHit);
 
         switch (weapon)
         {
@@ -535,12 +539,18 @@ public class PlayerController : MonoBehaviour
 
             case MaskType.Earth:
 
-                pRigidbody.AddForce((transform.position - from).normalized * PullForce);
+                ForcePushPull = (from - transform.position).normalized * PullForce;
+
+                if (Time.time > StunnedUntilTime + 5f)
+                    StunnedUntilTime = Time.time + EarthStunsTime;
+
+                InvulnerableUntilTime = Time.time + InvulnerableAfterOff;
+
                 break;
 
             case MaskType.Water:
 
-                pRigidbody.AddForce((from - transform.position).normalized * PushForce);
+                ForcePushPull = (transform.position - from).normalized * PushForce;
 
                 if (Time.time > SlowedUntilTime + 2.5f)
                 {
@@ -637,18 +647,16 @@ public class PlayerController : MonoBehaviour
     {
         ResultingSpeed = new Vector3 (leftstick.x, 0, leftstick.y).normalized * RunSpeed * (DefensiveActivated == MaskType.Wind ? 3f : 1.0f);
 
-        //Debug.Log("Stick: " + leftstick);
-        //Debug.Log("Speed: " + ResultingSpeed);
+        ResultingSpeed += ForcePushPull;
 
-        //if (Movement == MovementType.Walking && ResultingSpeed > 0.5f && Grounded)
-        //    SoundManager.instance.Loop("P1Walk", transform.position, transform.rotation, SoundType.footstep);
-        //else
-        //    SoundManager.instance.Stop("P1Walk");
+        ForcePushPull *= 1.0f - (Time.deltaTime * 2f);
 
         ResultingSpeed.y = pRigidbody.velocity.y;
+
         pRigidbody.velocity = ResultingSpeed;
 
         ResultingSpeed.y = 0;
+
         if (ResultingSpeed.sqrMagnitude > 1f)
             transform.rotation = Quaternion.LookRotation(ResultingSpeed, Vector3.up);
 
@@ -700,7 +708,15 @@ public class PlayerController : MonoBehaviour
             // Cone forward 4 units = short stun + short slow
             case MaskType.Fire:
 
-                GameObject wpn = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Fire);
+                GameObject wpn = WeaponManager.instance.CreateWeapon(transform.position + transform.up, CardinalRotation, CardinalRotation * Vector3.forward * 15, WeaponType.Fire);
+                wpn.GetComponent<WeaponController>().Owner = PlayerNumber;
+
+                CardinalRotation = Quaternion.Euler(0, targetroty - 10, 0);
+                wpn = WeaponManager.instance.CreateWeapon(transform.position + transform.up, CardinalRotation, CardinalRotation * Vector3.forward * 15, WeaponType.Fire);
+                wpn.GetComponent<WeaponController>().Owner = PlayerNumber;
+
+                CardinalRotation = Quaternion.Euler(0, targetroty + 10, 0);
+                wpn = WeaponManager.instance.CreateWeapon(transform.position + transform.up, CardinalRotation, CardinalRotation * Vector3.forward * 15, WeaponType.Fire);
                 wpn.GetComponent<WeaponController>().Owner = PlayerNumber;
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.fire);
@@ -709,12 +725,11 @@ public class PlayerController : MonoBehaviour
             // SphereRaycast pull towards 5 units
             case MaskType.Earth:
 
-                GameObject wpn2 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Earth);
-                wpn2.GetComponent<WeaponController>().Owner = PlayerNumber;
+               ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, CardinalRotation, Vector3.zero, EffectType.Earth);
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.earth);
 
-                RaycastHit[] hits = Physics.SphereCastAll(transform.position, 1, CardinalRotation * Vector3.forward, 4, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
+                RaycastHit[] hits = Physics.SphereCastAll(transform.position, 2.5f, CardinalRotation * Vector3.forward, 6, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
 
                 foreach (RaycastHit hit in hits)
                 {
@@ -732,12 +747,11 @@ public class PlayerController : MonoBehaviour
             // Line Raycast hit = long stun
             case MaskType.Lightning:
 
-                GameObject wpn3 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Lightning);
-                wpn3.GetComponent<WeaponController>().Owner = PlayerNumber;
+                ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, CardinalRotation, Vector3.zero, EffectType.Lightning);
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.lightning);
 
-                RaycastHit[] hits2 = Physics.SphereCastAll(transform.position, 0.3f, CardinalRotation * Vector3.forward, 10f, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
+                RaycastHit[] hits2 = Physics.SphereCastAll(transform.position, 2.5f, CardinalRotation * Vector3.forward, 10f, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
 
                 foreach (RaycastHit hit in hits2)
                 {
@@ -755,12 +769,11 @@ public class PlayerController : MonoBehaviour
             // SphereRaycast pushback 3 units + long slow
             case MaskType.Water:
 
-                GameObject wpn4 = WeaponManager.instance.CreateWeapon(transform.position + transform.up + transform.forward, CardinalRotation, transform.forward * 15, WeaponType.Water);
-                wpn4.GetComponent<WeaponController>().Owner = PlayerNumber;
+                ParticleManager.instance.CreateEffect(transform.position + transform.up + transform.forward, CardinalRotation, Vector3.zero, EffectType.Water);
 
                 SoundManager.instance.Play(transform.position, transform.rotation, SoundType.water);
 
-                RaycastHit[] hits3 = Physics.SphereCastAll(transform.position, 1, CardinalRotation * Vector3.forward, 6, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
+                RaycastHit[] hits3 = Physics.SphereCastAll(transform.position, 2.5f, CardinalRotation * Vector3.forward, 6, LayerMask.GetMask("Player1", "Player2", "Player3", "Player4"));
 
                 foreach (RaycastHit hit in hits3)
                 {

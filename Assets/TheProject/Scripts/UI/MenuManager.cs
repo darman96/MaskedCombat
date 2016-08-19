@@ -228,22 +228,22 @@ public class MenuManager : MonoBehaviour
 
     void UpdateMenu()
     {
-        if ((Time.time + 1) % 4.0f > 3.5f && Random.Range (0, 3) == 0)
+        if ((Time.time + .5f) % 4.0f > 3.5f && Random.Range (0, 3) == 0)
             Artist2d.SetActive(false);
         else
             Artist2d.SetActive(true);
 
-        if ((Time.time + 2) % 4.0f > 3.5f && Random.Range(0, 3) == 0)
+        if ((Time.time + 1f) % 4.0f > 3.5f && Random.Range(0, 3) == 0)
             Artist3d.SetActive(false);
         else
             Artist3d.SetActive(true);
 
-        if (Time.time + 3 % 4.0f > 3.5f && Random.Range(0, 3) == 0)
+        if ((Time.time + 1.5f) % 4.0f > 3.5f && Random.Range(0, 3) == 0)
             SoundArtist.SetActive(false);
         else
             SoundArtist.SetActive(true);
 
-        if ((Time.time + 2) % 4.0f > 3.5f && Random.Range(0, 3) == 0)
+        if ((Time.time + 1f) % 4.0f > 3.5f && Random.Range(0, 3) == 0)
             Programmer.SetActive(false);
         else
             Programmer.SetActive(true);
