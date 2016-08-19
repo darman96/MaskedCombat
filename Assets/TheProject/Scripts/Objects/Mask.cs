@@ -10,11 +10,40 @@ public enum MaskType
     Metal,
     Nature,
     Earth,
-    Lightning
+    Lightning,
+    NONE
 }
 
-public class Mask
+public class Mask : MonoBehaviour
 {
+    public float PickupDelay = 5.0f;
+    public GameObject Highlight;
+
     public MaskType Type;
+    public bool IsOffensive;
     public int Owner;
+
+    private float DroppedTime;
+
+    void OnEnable()
+    {
+        DroppedTime = Time.time;
+    }
+
+    void Update()
+    {
+        if (CanBePickedUp)
+            Highlight.SetActive(true);
+        else
+            Highlight.SetActive(false);
+    }
+
+    public bool CanBePickedUp
+    {
+        get
+        {
+            return (Time.time - DroppedTime > PickupDelay);
+        }
+        private set { }
+    }
 }

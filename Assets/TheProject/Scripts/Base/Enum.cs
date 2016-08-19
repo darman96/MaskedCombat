@@ -22,12 +22,11 @@ public enum PickupType
 
 public enum EffectType
 {
-    BloodSpray,
-    BloodSprayLarge,
-    BigBang,
     Explosion,
-    Explosion2,
-    Electricity,
+    OffHit,
+    Earth,
+    Water,
+    Lightning,
 }
 
 public enum SoundType
@@ -40,6 +39,17 @@ public enum SoundType
     nature,
     earth,
     lightning,
+    electric,
+    music,
+    hit1,
+    hit2,
+    hit3,
+    hitoff1,
+    hitoff2,
+    hitoff3,
+    invisible,
+    power_pickup,
+    power_up,
 
     lasershot,
     bulletshot,
@@ -80,7 +90,7 @@ public enum SoundType
 
 public enum WeaponType
 {
-    Fireball,
+    Fire,
     Water,
     Earth,
     Lightning
